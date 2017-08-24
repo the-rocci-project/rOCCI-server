@@ -11,5 +11,13 @@ module OpenNebula
       s_template.load_body
       s_template
     end
+
+    def empty_document
+      ResourceDocument.new(ResourceDocument.build_xml, @client)
+    end
+
+    def include_name?(resource_document_name)
+      detect { |rd| rd['NAME'] == resource_document_name }
+    end
   end
 end

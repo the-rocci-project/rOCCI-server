@@ -194,6 +194,7 @@ DEPENDENCIES
   rails_best_practices
   responders (~> 2.4)
   rubocop
+  thor (~> 0.20)
   xmlrpc (~> 0.3)
   yard
 
