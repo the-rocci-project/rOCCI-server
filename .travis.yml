@@ -1,4 +1,5 @@
 language: ruby
+cache: bundler
 
 rvm:
   - 2.2.7
@@ -16,8 +17,11 @@ branches:
     - master
     - next
 
-before_install: 'gem install bundler -v ">= 1.15"'
-install: 'bundle install --jobs=3 --retry=3'
+services:
+  - memcached
+
+before_install: gem install bundler -v ">= 1.15"
+install: bundle install --jobs=15
 script: bundle exec rake acceptance
 
 env:
