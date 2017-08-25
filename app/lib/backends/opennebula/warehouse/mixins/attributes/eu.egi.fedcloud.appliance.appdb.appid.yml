@@ -3,5 +3,5 @@ type: !ruby/class String
 required: true
 mutable: false
 default: ~
-description: VO-specific identifier of the appliance provided by AppDB.
+description: Global identifier of the appliance provided by AppDB.
 pattern: ~
