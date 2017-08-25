@@ -19,7 +19,8 @@ module Backends
         'eu.egi.fedcloud.appliance.appdb.version' => 'TEMPLATE/CLOUDKEEPER_APPLIANCE_VERSION',
         'eu.egi.fedcloud.appliance.appdb.mpuri' => 'TEMPLATE/CLOUDKEEPER_APPLIANCE_MPURI',
         'eu.egi.fedcloud.appliance.appdb.base_mpuri' => 'TEMPLATE/CLOUDKEEPER_APPLIANCE_BASE_MPURI',
-        'eu.egi.fedcloud.appliance.appdb.image_list.id' => 'TEMPLATE/CLOUDKEEPER_APPLIANCE_IMAGE_LIST_ID'
+        'eu.egi.fedcloud.appliance.appdb.image_list.id' => 'TEMPLATE/CLOUDKEEPER_APPLIANCE_IMAGE_LIST_ID',
+        'eu.egi.fedcloud.appliance.appdb.appid' => 'TEMPLATE/CLOUDKEEPER_APPLIANCE_APPID'
       }.freeze
 
       # Stuff to load from ONe Docs
