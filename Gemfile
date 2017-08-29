@@ -5,6 +5,7 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
+gem 'concurrent-ruby', '~> 1.0', require: false
 gem 'dalli', '~> 2.7'
 gem 'logstasher', '~> 1.2'
 gem 'occi-core', '~> 5.0', require: 'occi/infrastructure-ext'
