@@ -32,7 +32,15 @@ Vagrant.configure('2') do |config|
       vb.memory = VM_SIZE[:large][:memory]
     end
 
-    one.vm.provision 'shell', inline: 'sudo -u oneadmin /bin/bash /vagrant/examples/opennebula/setup.sh'
+    one.vm.provision 'shell', inline: <<-SHELL
+      ONE_HOME="/home/vagrant/.one/"
+
+      mkdir -p $ONE_HOME
+      cp /var/lib/one/.one/one_auth $ONE_HOME
+      chown -R vagrant:vagrant $ONE_HOME
+    SHELL
+
+    one.vm.provision 'shell', privileged: false, path: 'examples/opennebula/setup.sh'
   end
 
   config.vm.define 'rocci-server', autostart: false do |rocci_server|
@@ -89,6 +97,7 @@ Vagrant.configure('2') do |config|
 
       cd $SERVER_DIR
       rvm 2.4.0 do bundle install --deployment
+      rvm 2.4.0 do bundle exec bin/oneresources http://#{ONE_ADDR}:2633/RPC2
 
       export RAILS_ENV=production
       export HOST=0.0.0.0
