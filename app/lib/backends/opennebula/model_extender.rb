@@ -96,7 +96,7 @@ module Backends
         os.title = template['TEMPLATE/CLOUDKEEPER_APPLIANCE_TITLE'] || template['NAME']
         os.schema = change_namespace(os.schema)
         os.location = URI.parse("/mixin/os_tpl/#{template['ID']}")
-        OS_TPL_ATTRS.each_pair { |k, v| os[k] = template[v] }
+        OS_TPL_ATTRS.each_pair { |k, v| os[k].default = template[v] }
       end
 
       # :nodoc:
