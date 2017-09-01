@@ -1,0 +1,13 @@
+{
+  "kind": "http://schemas.ogf.org/occi/infrastructure#compute",
+  "mixins": [
+    "http://schemas.localhost/occi/infrastructure/resource_tpl#large",
+    "http://schemas.localhost/occi/infrastructure/os_tpl#appl0"
+  ],
+  "attributes":{
+    "occi.core.id": "a262ad95-c093-4814-8c0d-bc6d475bb845",
+    "occi.core.title": "a262ad95-c093-4814-8c0d-bc6d475bb845"
+  },
+  "id": "a262ad95-c093-4814-8c0d-bc6d475bb845",
+  "title": "a262ad95-c093-4814-8c0d-bc6d475bb845"
+}
