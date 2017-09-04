@@ -101,7 +101,7 @@ Vagrant.configure('2') do |config|
       rvm 2.4.0 do bundle install --deployment
 
       if [ "x#{ENV['ROCCI_SERVER_INTEGRATION_ONE']}" = "xyes" ] ; then
-        rvm 2.4.0 do bundle exec bin/oneresources http://#{ONE_ADDR}:2633/RPC2
+        rvm 2.4.0 do bundle exec bin/oneresources create --endpoint http://#{ONE_ADDR}:2633/RPC2
       fi
 
       export RAILS_ENV=production
