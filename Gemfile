@@ -14,6 +14,7 @@ gem 'rack-attack', '~> 5.0'
 gem 'rack-cors', '~> 1.0'
 gem 'rails', '~> 5.1'
 gem 'responders', '~> 2.4'
+gem 'thor', '~> 0.20'
 
 group :development, :test do
   gem 'byebug'

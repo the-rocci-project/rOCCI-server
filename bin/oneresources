@@ -1,61 +1,97 @@
 #!/usr/bin/env ruby
+require 'thor'
 require 'pathname'
 require 'json'
 require 'digest/sha1'
 require 'opennebula'
 
-########################################################################################################################
-########################################################################################################################
-
-ENDPOINT = ARGV[0] || 'http://localhost:2633/RPC2'.freeze
-USERNAME = ARGV[1] || 'oneadmin'.freeze
-PASSWORD = ARGV[2] || 'opennebula'.freeze
-
-########################################################################################################################
-########################################################################################################################
-
-# Set path(s) to your application
 APP_ROOT = Pathname.new(File.expand_path(File.join('..', '..'), __FILE__)).freeze
 RES_DIR = Pathname.new(File.join(APP_ROOT, 'lib', 'resources')).freeze
-
-# Load OpenNebula monkey-patches from `lib/open_nebula`
 Dir[APP_ROOT.join('lib', 'open_nebula', '*.rb')].each { |file| require file.gsub('.rb', '') }
 
-########################################################################################################################
-########################################################################################################################
+module OneResources
+  class CLI < Thor
+    NEW_RESOURCE_DOCUMENT_CHOWN_UID = 0
+    NEW_RESOURCE_DOCUMENT_CHMOD_OCTET = '640'.freeze
 
-# :nodoc:
-def one_wrapper
-  raise 'Block is a required argument' unless block_given?
-  retval = yield
-  raise "Error: #{retval.message}" if OpenNebula.is_error?(retval)
-  retval
-end
+    class_option :endpoint,
+                 default: 'http://localhost:2633/RPC2'.freeze,
+                 type: :string
+    class_option :username,
+                 default: 'oneadmin'.freeze,
+                 type: :string
+    class_option :password,
+                 default: 'opennebula'.freeze,
+                 type: :string
 
-########################################################################################################################
-########################################################################################################################
+    desc 'delete', 'Deletes all resource documents'
+    def delete
+      initialize_resource_document_pool
+      @resource_document_pool.each { |rd| one_wrapper { rd.delete } }
+    end
 
-client = OpenNebula::Client.new("#{USERNAME}:#{PASSWORD}", ENDPOINT)
+    desc 'create RES_DIR', 'Creates resource documents from RES_DIR directory'
+    option :force,
+           default: false,
+           type: :boolean
+    def create(res_dir = RES_DIR)
+      initialize_resource_document_pool
+      initialize_group_pool
+      @group_pool.each do |group|
+        for_dir(res_dir) do |res|
+          rd_name = "#{group['ID']}_#{Digest::SHA1.hexdigest res['identifier']}"
+          raise 'Resource document is already in OpenNebula' \
+            if !options[:force] && @resource_document_pool.include_name?(rd_name)
+          create_resource(res, group, rd_name)
+        end
+      end
+    end
 
-# Clean old resource documents
-rdp = OpenNebula::ResourceDocumentPool.new(client)
-one_wrapper { rdp.info_all }
-rdp.each { |rd| one_wrapper { rd.delete } }
+    desc 'list', 'Lists all existing resource documents'
+    def list
+      initialize_resource_document_pool
+      @resource_document_pool.each { |rd| puts rd['NAME'] }
+    end
 
-# Get groups
-gp = OpenNebula::GroupPool.new(client)
-one_wrapper { gp.info }
+    private
 
-# Insert new resource documents for all groups
-gp.each do |group|
-  Dir[RES_DIR.join('*.json')].each do |json_file|
-    resources = JSON.parse(File.read(json_file))
+    def one_wrapper
+      raise 'Block is a required argument' unless block_given?
+      retval = yield
+      raise "Error: #{retval.message}" if OpenNebula.is_error?(retval)
+      retval
+    end
 
-    resources.each do |res|
-      rd = OpenNebula::ResourceDocument.new(OpenNebula::ResourceDocument.build_xml, client)
-      one_wrapper { rd.allocate(res.to_json, "#{group['ID']}_#{Digest::SHA1.hexdigest res['identifier']}") }
-      one_wrapper { rd.chown(0, group['ID'].to_i) }
-      one_wrapper { rd.chmod_octet('640') }
+    def initialize_client
+      @client = OpenNebula::Client.new("#{options[:username]}:#{options[:password]}", options[:endpoint])
+    end
+
+    def initialize_resource_document_pool
+      initialize_client unless @client
+      @resource_document_pool = OpenNebula::ResourceDocumentPool.new(@client)
+      one_wrapper { @resource_document_pool.info_all }
+    end
+
+    def initialize_group_pool
+      initialize_client unless @client
+      @group_pool = OpenNebula::GroupPool.new(@client)
+      one_wrapper { @group_pool.info }
+    end
+
+    def for_dir(res_dir, &block)
+      raise 'Block is a required argument' unless block_given?
+      Dir[res_dir.join('*.json')].each do |json_file|
+        JSON.parse(File.read(json_file)).each(&block)
+      end
+    end
+
+    def create_resource(res, group, rd_name)
+      rd = @resource_document_pool.empty_document
+      one_wrapper { rd.allocate(res.to_json, rd_name) }
+      one_wrapper { rd.chown(NEW_RESOURCE_DOCUMENT_CHOWN_UID, group['ID'].to_i) }
+      one_wrapper { rd.chmod_octet(NEW_RESOURCE_DOCUMENT_CHMOD_OCTET) }
     end
   end
 end
+
+OneResources::CLI.start(ARGV)
