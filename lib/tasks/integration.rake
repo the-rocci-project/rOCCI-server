@@ -32,9 +32,9 @@ unless Rails.env.production?
     desc 'Run integration tests with OpenNebula'
     task :one do
       ENV['ROCCI_SERVER_INTEGRATION_ONE'] = 'yes'
-      Rake::Task['vagrant_up'].invoke
-      Rake::Task['tests_one'].invoke
-      Rake::Task['vagrant_destroy'].invoke
+      Rake::Task['integration:vagrant_up'].invoke
+      Rake::Task['integration:tests_one'].invoke
+      Rake::Task['integration:vagrant_destroy'].invoke
     end
 
     desc 'Provision virtual machines for integration tests'
@@ -57,12 +57,12 @@ unless Rails.env.production?
 
     desc 'Execute integration suite for Dummy backend'
     task :tests_dummy do
-      exec_bash Rails.root.join('test', 'integration', 'run_dummy.sh').to_s
+      exec_bash Rails.root.join('test', 'integration', 'dummy.sh').to_s
     end
 
     desc 'Execute integration suite for OpenNebula backend'
     task :tests_one do
-      exec_bash Rails.root.join('test', 'integration', 'run_one.sh').to_s
+      exec_bash Rails.root.join('test', 'integration', 'one.sh').to_s
     end
   end
 end
