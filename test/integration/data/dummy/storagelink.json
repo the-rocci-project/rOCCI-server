@@ -1,0 +1,11 @@
+{
+  "kind": "http://schemas.ogf.org/occi/infrastructure#storagelink",
+  "attributes":{
+    "occi.core.id": "a262ad95-c093-4814-8c0d-bc6d475bb845",
+    "occi.core.title": "a262ad95-c093-4814-8c0d-bc6d475bb845",
+    "occi.core.target": "/storage/a262ad95-c093-4814-8c0d-bc6d475bb845",
+    "occi.core.source": "/compute/a262ad95-c093-4814-8c0d-bc6d475bb845"
+  },
+  "id": "a262ad95-c093-4814-8c0d-bc6d475bb845",
+  "title": "a262ad95-c093-4814-8c0d-bc6d475bb845"
+}

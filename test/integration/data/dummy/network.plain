@@ -1,0 +1,4 @@
+Category: network; scheme="http://schemas.ogf.org/occi/infrastructure#"; class="kind"
+Category: zone0; scheme="http://schemas.localhost/occi/infrastructure/availability_zone#"; class="mixin"
+X-OCCI-Attribute: occi.core.id="a262ad95-c093-4814-8c0d-bc6d475bb845"
+X-OCCI-Attribute: occi.core.title="a262ad95-c093-4814-8c0d-bc6d475bb845"

@@ -62,7 +62,7 @@ LOCATIONS+=(networkinterface storagelink securitygrouplink)
 for LOCATION in ${LOCATIONS[@]} ; do
   INSTANCES_PATH="/$LOCATION/"
   OUTPUT=$(get_json "$INSTANCES_PATH")
-  display "$INSTANCES_PATH (json)" "$OUTPUT" "$?" 
+  display "$INSTANCES_PATH (json)" "$OUTPUT" "$?"
 done
 
 for FORMAT in ${FORMATS[@]} ; do
@@ -102,8 +102,9 @@ printf "############################# Create #################################\n
 printf "######################################################################\n"
 
 FORMATS=(json plain)
-LOCATIONS=(compute)
-DATA_DIR="${TESTS_DIR}/data/"
+LOCATIONS=(compute network storage ipreservation securitygroup)
+LOCATIONS+=(networkinterface storagelink securitygrouplink)
+DATA_DIR="${TESTS_DIR}/data/dummy/"
 
 for FORMAT in ${FORMATS[@]} ; do
   for LOCATION in ${LOCATIONS[@]} ; do
