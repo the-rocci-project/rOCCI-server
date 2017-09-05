@@ -46,7 +46,7 @@ module EntityRestrictable
 
     # :nodoc:
     def valid_sg_rules?(rules)
-      rules.reduce(true) { |all, rule| all && rule['protocol'].present? && rule['type'].present? }
+      rules.reduce(true) { |all, rule| all && rule[:protocol].present? && rule[:type].present? }
     end
   end
 end
