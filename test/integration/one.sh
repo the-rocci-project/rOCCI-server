@@ -87,7 +87,7 @@ for FORMAT in ${FORMATS[@]} ; do
     if [ $RETVAL -ne 0 ] ; then
       FAILS=$((FAILS+1))
     else
-      URL=$(echo "$OUTPUT" | sed "s/X-OCCI-Location: //g" | sed 's/\["//g' | sed 's/"\]//g')
+      URL=$(echo "$OUTPUT" | sed "s/X-OCCI-Location: //g" | sed 's/\["//g' | sed 's/"\]//g' | sed 's/https\:\/\/localhost\:3000//g')
       CLEANUPS+=("$URL")
     fi
 
