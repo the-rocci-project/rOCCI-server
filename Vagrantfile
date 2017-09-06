@@ -44,7 +44,7 @@ Vagrant.configure('2') do |config|
   end
 
   config.vm.define 'rocci-server', autostart: false do |rocci_server|
-    rocci_server.vm.box = "centos/7"
+    rocci_server.vm.box = 'centos/7'
 
     rocci_server.vm.network 'forwarded_port', guest: 3000, host: 3000, host_ip: '127.0.0.1' # REST
     rocci_server.vm.network 'private_network', ip: ROCCI_SERVER_ADDR
