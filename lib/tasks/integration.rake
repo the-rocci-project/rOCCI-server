@@ -41,8 +41,9 @@ unless Rails.env.production?
     task :vagrant_up do
       puts 'Running vagrant-up'
 
-      machines = %w[rocci-server]
+      machines = []
       machines << 'one' if ENV['ROCCI_SERVER_INTEGRATION_ONE'] == 'yes'
+      machines << 'rocci-server'
       exec_vagrant 'up', *machines
 
       puts 'Finished running vagrant-up'
