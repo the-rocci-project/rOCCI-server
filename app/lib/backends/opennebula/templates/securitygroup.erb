@@ -5,7 +5,7 @@ DESCRIPTION = "<%= data[:instance]['occi.core.summary'] || "SG created on #{::Da
 RULE = [
   PROTOCOL = "<%= rule[:protocol].upcase %>",
   RULE_TYPE = "<%= rule[:type].upcase %>"
-  <% if %>
+  <% if rule[:port] %>
   , RANGE = "<%= rule[:port] %>"
   <% end %>
   <%# TODO: IP & SIZE from rule[:range] %>
