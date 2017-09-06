@@ -16,3 +16,123 @@
 
 TESTS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$TESTS_DIR/common.sh"
+
+# Debugging helper
+SHOW_RESPONSE=no
+
+# Collect failures
+FAILS=0
+
+printf "######################################################################\n"
+printf "############################## Model #################################\n"
+printf "######################################################################\n"
+
+FORMATS=(plain json)
+
+for FORMAT in ${FORMATS[@]} ; do
+  MODEL_PATH="/-/"
+  OUTPUT=$(get_$FORMAT $MODEL_PATH)
+
+  RETVAL=$?
+  if [ $RETVAL -ne 0 ] ; then
+    FAILS=$((FAILS+1))
+  fi
+
+  display "$MODEL_PATH ($FORMAT)" "$OUTPUT" "$RETVAL"
+done
+
+printf "\n"
+
+printf "######################################################################\n"
+printf "############################## List ##################################\n"
+printf "######################################################################\n"
+
+LOCATIONS=(entity resource link)
+LOCATIONS+=(compute network storage ipreservation securitygroup)
+LOCATIONS+=(networkinterface storagelink securitygrouplink)
+
+for LOCATION in ${LOCATIONS[@]} ; do
+  ENTITY_PATH="/${LOCATION}/"
+  OUTPUT=$(get_locations "$ENTITY_PATH")
+
+  RETVAL=$?
+  if [ $RETVAL -ne 0 ] ; then
+    FAILS=$((FAILS+1))
+  fi
+
+  display "$ENTITY_PATH (uri-list)" "$OUTPUT" "$RETVAL"
+done
+
+printf "\n"
+
+printf "######################################################################\n"
+printf "############################# Create #################################\n"
+printf "######################################################################\n"
+
+FORMATS=(json plain)
+LOCATIONS=(compute network storage ipreservation securitygroup)
+# LOCATIONS+=(networkinterface storagelink securitygrouplink)
+DATA_DIR="${TESTS_DIR}/data/one/"
+CLEANUPS=()
+
+for FORMAT in ${FORMATS[@]} ; do
+  for LOCATION in ${LOCATIONS[@]} ; do
+    INSTANCES_PATH="/${LOCATION}/"
+    ENTITY=$(mktemp "/tmp/rocci-server-integration-${LOCATION}-${FORMAT}.XXXXXXXXXXXX")
+    cp "${DATA_DIR}/${LOCATION}.${FORMAT}" "$ENTITY"
+    sed -i "s/a262ad95\-c093\-4814\-8c0d\-bc6d475bb845/${LOCATION}\-a262ad95\-c093\-4814\-8c0d\-bc6d475bb845\-$FORMAT/g" "$ENTITY"
+    OUTPUT=$(post_$FORMAT "$INSTANCES_PATH" "$ENTITY")
+
+    RETVAL=$?
+    if [ $RETVAL -ne 0 ] ; then
+      FAILS=$((FAILS+1))
+    else
+      URL=$(echo "$OUTPUT" | sed "s/X-OCCI-Location: //g" | sed 's/\["//g' | sed 's/"\]//g')
+      CLEANUPS+=("$URL")
+    fi
+
+    display "$INSTANCES_PATH ($FORMAT)" "$OUTPUT" "$RETVAL"
+  done
+done
+
+printf "\n"
+
+printf "######################################################################\n"
+printf "############################## Get ###################################\n"
+printf "######################################################################\n"
+
+FORMATS=(json plain)
+
+for FORMAT in ${FORMATS[@]} ; do
+  for CLEANUP in ${CLEANUPS[@]} ; do
+    OUTPUT=$(get_$FORMAT "$CLEANUP")
+
+    RETVAL=$?
+    if [ $RETVAL -ne 0 ] ; then
+      FAILS=$((FAILS+1))
+    fi
+
+    display "$CLEANUP ($FORMAT)" "$OUTPUT" "$RETVAL"
+  done
+done
+
+printf "\n"
+
+printf "######################################################################\n"
+printf "############################# Delete #################################\n"
+printf "######################################################################\n"
+
+for CLEANUP in ${CLEANUPS[@]} ; do
+  OUTPUT=$(delete "$CLEANUP")
+
+  RETVAL=$?
+  if [ $RETVAL -ne 0 ] ; then
+    FAILS=$((FAILS+1))
+  fi
+
+  display "$CLEANUP" "$OUTPUT" "$RETVAL"
+done
+
+printf "\n"
+
+exit $FAILS

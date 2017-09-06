@@ -23,16 +23,20 @@ oneuser update johnny $TEMPLATE_DIR/user.one --append
 
 # make basic resources accessible
 oneimage chgrp ttylinux users
-oneimage chmod ttylinux 640
+oneimage chmod ttylinux 440
+oneimage chown ttylinux johnny
 
 onetemplate chgrp ttylinux users
 onetemplate chmod ttylinux 640
 
 onevnet chgrp cloud users
-onevnet chmod cloud 640
+onevnet chmod cloud 440
+onevnet chown cloud johnny
 
 # add access to clusters (availability zones)
-oneacl create '@1 CLUSTER/* USE *'
+oneacl create '@1 CLUSTER/* USE *'   # listing availability zones
+oneacl create '@1 CLUSTER/* ADMIN *' # creating IP reservations in availability zone
+oneacl create '@1 NET/* CREATE *'    # creating private networks
 
 # add necessary group attributes
 onegroup update users $TEMPLATE_DIR/group.one --append
