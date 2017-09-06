@@ -20,6 +20,9 @@ source "$TESTS_DIR/common.sh"
 # Debugging helper
 SHOW_RESPONSE=no
 
+# Collect failures
+FAILS=0
+
 printf "######################################################################\n"
 printf "############################## Model #################################\n"
 printf "######################################################################\n"
@@ -29,7 +32,13 @@ FORMATS=(plain json)
 for FORMAT in ${FORMATS[@]} ; do
   MODEL_PATH="/-/"
   OUTPUT=$(get_$FORMAT $MODEL_PATH)
-  display "$MODEL_PATH ($FORMAT)" "$OUTPUT" "$?"
+
+  RETVAL=$?
+  if [ $RETVAL -ne 0 ] ; then
+    FAILS=$((FAILS+1))
+  fi
+
+  display "$MODEL_PATH ($FORMAT)" "$OUTPUT" "$RETVAL"
 done
 
 printf "\n"
@@ -45,7 +54,13 @@ LOCATIONS+=(networkinterface storagelink securitygrouplink)
 for LOCATION in ${LOCATIONS[@]} ; do
   ENTITY_PATH="/${LOCATION}/"
   OUTPUT=$(get_locations "$ENTITY_PATH")
-  display "$ENTITY_PATH (uri-list)" "$OUTPUT" "$?"
+
+  RETVAL=$?
+  if [ $RETVAL -ne 0 ] ; then
+    FAILS=$((FAILS+1))
+  fi
+
+  display "$ENTITY_PATH (uri-list)" "$OUTPUT" "$RETVAL"
 done
 
 printf "\n"
@@ -62,37 +77,27 @@ LOCATIONS+=(networkinterface storagelink securitygrouplink)
 for LOCATION in ${LOCATIONS[@]} ; do
   INSTANCES_PATH="/$LOCATION/"
   OUTPUT=$(get_json "$INSTANCES_PATH")
-  display "$INSTANCES_PATH (json)" "$OUTPUT" "$?"
+
+  RETVAL=$?
+  if [ $RETVAL -ne 0 ] ; then
+    FAILS=$((FAILS+1))
+  fi
+
+  display "$INSTANCES_PATH (json)" "$OUTPUT" "$RETVAL"
 done
 
 for FORMAT in ${FORMATS[@]} ; do
   for LOCATION in ${LOCATIONS[@]} ; do
     INSTANCE_PATH="/${LOCATION}/$FAKE_ID"
     OUTPUT=$(get_$FORMAT "$INSTANCE_PATH")
-    display "$INSTANCE_PATH ($FORMAT)" "$OUTPUT" "$?"
+
+    RETVAL=$?
+    if [ $RETVAL -ne 0 ] ; then
+      FAILS=$((FAILS+1))
+    fi
+
+    display "$INSTANCE_PATH ($FORMAT)" "$OUTPUT" "$RETVAL"
   done
-done
-
-printf "\n"
-
-printf "######################################################################\n"
-printf "############################# Delete #################################\n"
-printf "######################################################################\n"
-
-FAKE_ID="a262ad95-c093-4814-8c0d-bc6d475bb845"
-LOCATIONS=(compute network storage ipreservation securitygroup)
-LOCATIONS+=(networkinterface storagelink securitygrouplink)
-
-for LOCATION in ${LOCATIONS[@]} ; do
-  INSTANCE_PATH="/${LOCATION}/$FAKE_ID"
-  OUTPUT=$(delete "$INSTANCE_PATH")
-  display "$INSTANCE_PATH" "$OUTPUT" "$?"
-done
-
-for LOCATION in ${LOCATIONS[@]} ; do
-  INSTANCES_PATH="/${LOCATION}/"
-  OUTPUT=$(delete "$INSTANCES_PATH")
-  display "$INSTANCES_PATH" "$OUTPUT" "$?"
 done
 
 printf "\n"
@@ -110,8 +115,50 @@ for FORMAT in ${FORMATS[@]} ; do
   for LOCATION in ${LOCATIONS[@]} ; do
     INSTANCES_PATH="/${LOCATION}/"
     OUTPUT=$(post_$FORMAT "$INSTANCES_PATH" "${DATA_DIR}/${LOCATION}.${FORMAT}")
-    display "$INSTANCES_PATH ($FORMAT)" "$OUTPUT" "$?"
+
+    RETVAL=$?
+    if [ $RETVAL -ne 0 ] ; then
+      FAILS=$((FAILS+1))
+    fi
+
+    display "$INSTANCES_PATH ($FORMAT)" "$OUTPUT" "$RETVAL"
   done
 done
 
 printf "\n"
+
+printf "######################################################################\n"
+printf "############################# Delete #################################\n"
+printf "######################################################################\n"
+
+FAKE_ID="a262ad95-c093-4814-8c0d-bc6d475bb845"
+LOCATIONS=(compute network storage ipreservation securitygroup)
+LOCATIONS+=(networkinterface storagelink securitygrouplink)
+
+for LOCATION in ${LOCATIONS[@]} ; do
+  INSTANCE_PATH="/${LOCATION}/$FAKE_ID"
+  OUTPUT=$(delete "$INSTANCE_PATH")
+
+  RETVAL=$?
+  if [ $RETVAL -ne 0 ] ; then
+    FAILS=$((FAILS+1))
+  fi
+
+  display "$INSTANCE_PATH" "$OUTPUT" "$RETVAL"
+done
+
+for LOCATION in ${LOCATIONS[@]} ; do
+  INSTANCES_PATH="/${LOCATION}/"
+  OUTPUT=$(delete "$INSTANCES_PATH")
+
+  RETVAL=$?
+  if [ $RETVAL -ne 0 ] ; then
+    FAILS=$((FAILS+1))
+  fi
+
+  display "$INSTANCES_PATH" "$OUTPUT" "$RETVAL"
+done
+
+printf "\n"
+
+exit $FAILS
