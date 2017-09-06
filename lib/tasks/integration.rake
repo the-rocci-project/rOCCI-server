@@ -32,9 +32,11 @@ unless Rails.env.production?
     desc 'Run integration tests with OpenNebula'
     task :one do
       ENV['ROCCI_SERVER_INTEGRATION_ONE'] = 'yes'
-      Rake::Task['integration:vagrant_up'].invoke
-      Rake::Task['integration:tests_one'].invoke
-      Rake::Task['integration:vagrant_destroy'].invoke
+      tasks = %w[integration:vagrant_up integration:tests_one integration:vagrant_destroy]
+      tasks.each do |name|
+        Rake::Task[name].reenable
+        Rake::Task[name].invoke
+      end
     end
 
     desc 'Provision virtual machines for integration tests'
