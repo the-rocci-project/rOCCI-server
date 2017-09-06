@@ -48,7 +48,7 @@ module Backends
       def create(instance)
         vnet = pool_element(:virtual_network, instance.floatingippool.term)
         res_name = instance['occi.core.title'] || ::SecureRandom.uuid
-        res_id = client(Errors::Backend::EntityCreateError) { vnet.reserve(res_name, 1) }
+        res_id = client(Errors::Backend::EntityCreateError) { vnet.reserve(res_name, 1, nil, nil, nil) }
         res_id.to_s
       end
 
