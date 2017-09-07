@@ -13,7 +13,7 @@ Environment="PORT=11443"
 Environment="SECRET_KEY_BASE=a271402df66e152767d7b2149b8773adf242401eb8000e02a55a5d452fe2e47f7cf05969b8b77d1acb6319c9286e13ea3311b3e180115e9327482b5ecfa2f353"
 # Environment="HOST_CERT=/path/to/cert"
 # Environment="HOST_KEY=/path/to/key"
-ExecStart="bundle exec --keep-file-descriptors puma"
+ExecStart="/opt/occi-server/embedded/bin/bundle exec --keep-file-descriptors puma"
 Restart=always
 
 [Install]
