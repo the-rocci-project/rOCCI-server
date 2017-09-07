@@ -1,0 +1,13 @@
+{
+  "kind": "http://schemas.ogf.org/occi/infrastructure#ipreservation",
+  "mixins": [
+    "http://schemas.localhost/occi/infrastructure/availability_zone#zone0",
+    "http://schemas.localhost/occi/infrastructure/network/floatingippool#pool0"
+  ],
+  "attributes":{
+    "occi.core.id": "a262ad95-c093-4814-8c0d-bc6d475bb845",
+    "occi.core.title": "a262ad95-c093-4814-8c0d-bc6d475bb845"
+  },
+  "id": "a262ad95-c093-4814-8c0d-bc6d475bb845",
+  "title": "a262ad95-c093-4814-8c0d-bc6d475bb845"
+}

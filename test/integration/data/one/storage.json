@@ -1,0 +1,12 @@
+{
+  "kind": "http://schemas.ogf.org/occi/infrastructure#storage",
+  "mixins": [
+    "http://schemas.localhost/occi/infrastructure/availability_zone#0"
+  ],
+  "attributes":{
+    "occi.core.id": "a262ad95-c093-4814-8c0d-bc6d475bb845",
+    "occi.core.title": "a262ad95-c093-4814-8c0d-bc6d475bb845"
+  },
+  "id": "a262ad95-c093-4814-8c0d-bc6d475bb845",
+  "title": "a262ad95-c093-4814-8c0d-bc6d475bb845"
+}

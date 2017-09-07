@@ -1,0 +1,5 @@
+Category: networkinterface; scheme="http://schemas.ogf.org/occi/infrastructure#"; class="kind"
+X-OCCI-Attribute: occi.core.id="a262ad95-c093-4814-8c0d-bc6d475bb845"
+X-OCCI-Attribute: occi.core.title="a262ad95-c093-4814-8c0d-bc6d475bb845"
+X-OCCI-Attribute: occi.core.source="/compute/a262ad95-c093-4814-8c0d-bc6d475bb845"
+X-OCCI-Attribute: occi.core.target="/network/a262ad95-c093-4814-8c0d-bc6d475bb845"
