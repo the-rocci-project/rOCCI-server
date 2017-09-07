@@ -1,9 +1,20 @@
 class BackendProxy
+  # :nodoc:
+  def self.available_backend_types
+    bds = Hash[available_backend_files.collect { |bd| [bd.to_sym, Backends.const_get(bd.classify)] }]
+    bds.keep_if { |_, bd| (bd.class == Module) && bd.respond_to?(:runnable?) && bd.runnable? }
+    Rails.logger.debug "Available backend types: #{bds}"
+    bds
+  end
+
+  # :nodoc:
+  def self.available_backend_files
+    mask = Rails.root.join('app', 'lib', 'backends', '*.rb')
+    Dir.glob(mask).collect { |f| f.split(File::SEPARATOR).last.chomp('.rb') }
+  end
+
   # Available backends (supported platforms)
-  BACKEND_TYPES = {
-    dummy: Backends::Dummy,
-    opennebula: Backends::Opennebula
-  }.freeze
+  BACKEND_TYPES = available_backend_types.freeze
 
   # Available backend fragments (supported types of resources)
   BACKEND_RESOURCE_SUBTYPES = %i[
