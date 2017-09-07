@@ -1,0 +1,12 @@
+[Unit]
+Description="rOCCI-server HTTPS Accept Socket"
+
+[Socket]
+# ListenStream=0.0.0.0:11443
+ListenStream=127.0.0.1:11443
+NoDelay=true
+ReusePort=true
+Backlog=1024
+
+[Install]
+WantedBy=sockets.target
