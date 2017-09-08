@@ -84,15 +84,6 @@ Vagrant.configure('2') do |config|
       chown -R vagrant:vagrant $SERVER_DIR
     SHELL
 
-    if ENV['ROCCI_SERVER_INTEGRATION_ONE'] == 'yes'
-      rocci_server.vm.provision 'shell', inline: <<-SHELL
-        SERVER_DIR="#{ROCCI_SERVER_DIR}"
-
-        sed -i s/localhost:2633/#{ONE_ADDR}:2633/g $SERVER_DIR/config/rocci_server.yml
-        sed -i 's/backend: dummy/backend: opennebula/g' $SERVER_DIR/config/rocci_server.yml
-      SHELL
-    end
-
     rocci_server.vm.provision 'shell', privileged: false, inline: <<-SHELL
       SERVER_DIR="#{ROCCI_SERVER_DIR}"
       source /etc/profile.d/rvm.sh
@@ -101,7 +92,10 @@ Vagrant.configure('2') do |config|
       rvm 2.4.0 do bundle install --deployment
 
       if [ "x#{ENV['ROCCI_SERVER_INTEGRATION_ONE']}" = "xyes" ] ; then
-        rvm 2.4.0 do bundle exec bin/oneresources create --endpoint http://#{ONE_ADDR}:2633/RPC2
+        export ROCCI_SERVER_BACKEND=opennebula
+        export ROCCI_SERVER_OPENNEBULA_ENDPOINT=http://#{ONE_ADDR}:2633/RPC2
+
+        rvm 2.4.0 do bundle exec bin/oneresources create --endpoint $ROCCI_SERVER_OPENNEBULA_ENDPOINT
       fi
 
       export RAILS_ENV=production
