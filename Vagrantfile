@@ -89,7 +89,7 @@ Vagrant.configure('2') do |config|
       source /etc/profile.d/rvm.sh
 
       cd $SERVER_DIR
-      rvm 2.4.0 do bundle install --deployment
+      rvm 2.4.0 do bundle install --deployment --without development test
 
       if [ "x#{ENV['ROCCI_SERVER_INTEGRATION_ONE']}" = "xyes" ] ; then
         export ROCCI_SERVER_BACKEND=opennebula
@@ -101,7 +101,7 @@ Vagrant.configure('2') do |config|
       export RAILS_ENV=production
       export HOST=0.0.0.0
       export SECRET_KEY_BASE=a271402df66e152767d7b2149b8773adf242401eb8000e02a55a5d452fe2e47f7cf05969b8b77d1acb6319c9286e13ea3311b3e180115e9327482b5ecfa2f353
-      rvm 2.4.0 do bundle exec puma &
+      rvm 2.4.0 do bundle exec puma --daemon
       sleep 5
     SHELL
   end
