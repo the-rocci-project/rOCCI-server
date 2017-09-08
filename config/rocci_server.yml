@@ -1,17 +1,17 @@
 defaults: &defaults
-  log_level: debug
-  hostname: localhost
-  port: 3000
-  keystone_uri: https://localhost:5000/
-  memcache: localhost:11211
-  backend: dummy
+  log_level: <%= ENV['ROCCI_SERVER_LOG_LEVEL'] || 'debug' %>
+  hostname: <%= ENV['ROCCI_SERVER_HOSTNAME'] || 'localhost' %>
+  port: <%= ENV['ROCCI_SERVER_PORT'] || 3000 %>
+  keystone_uri: <%= ENV['ROCCI_SERVER_KEYSTONE_URI'] || 'https://localhost:5000/' %>
+  memcache: <%= ENV['ROCCI_SERVER_MEMCACHE'] || 'localhost:11211' %>
+  backend: <%= ENV['ROCCI_SERVER_BACKEND'] || 'dummy' %>
   dummy:
     no_options: true
   opennebula:
-    endpoint: http://localhost:2633/RPC2
-    timeout: 30
-    schema_namespace: http://schemas.localhost/
-    template_dir: ~
+    endpoint: <%= ENV['ROCCI_SERVER_OPENNEBULA_ENDPOINT'] || 'http://localhost:2633/RPC2' %>
+    timeout: <%= ENV['ROCCI_SERVER_OPENNEBULA_TIMEOUT'] || 30 %>
+    schema_namespace: <%= ENV['ROCCI_SERVER_OPENNEBULA_SCHEMA_NAMESPACE'] || 'http://schemas.localhost/' %>
+    template_dir: <%= ENV['ROCCI_SERVER_OPENNEBULA_TEMPLATE_DIR'] %>
   encryption:
     token_cipher: <%= ENV['ROCCI_SERVER_ENCRYPTION_TOKEN_CIPHER'] %>
     token_key: <%= ENV['ROCCI_SERVER_ENCRYPTION_TOKEN_KEY'] %>
@@ -19,7 +19,6 @@ defaults: &defaults
 
 production:
   <<: *defaults
-  log_level: warn
 
 development:
   <<: *defaults

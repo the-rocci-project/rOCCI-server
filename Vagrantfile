@@ -84,30 +84,24 @@ Vagrant.configure('2') do |config|
       chown -R vagrant:vagrant $SERVER_DIR
     SHELL
 
-    if ENV['ROCCI_SERVER_INTEGRATION_ONE'] == 'yes'
-      rocci_server.vm.provision 'shell', inline: <<-SHELL
-        SERVER_DIR="#{ROCCI_SERVER_DIR}"
-
-        sed -i s/localhost:2633/#{ONE_ADDR}:2633/g $SERVER_DIR/config/rocci_server.yml
-        sed -i 's/backend: dummy/backend: opennebula/g' $SERVER_DIR/config/rocci_server.yml
-      SHELL
-    end
-
     rocci_server.vm.provision 'shell', privileged: false, inline: <<-SHELL
       SERVER_DIR="#{ROCCI_SERVER_DIR}"
       source /etc/profile.d/rvm.sh
 
       cd $SERVER_DIR
-      rvm 2.4.0 do bundle install --deployment
+      rvm 2.4.0 do bundle install --deployment --without development test
 
       if [ "x#{ENV['ROCCI_SERVER_INTEGRATION_ONE']}" = "xyes" ] ; then
-        rvm 2.4.0 do bundle exec bin/oneresources create --endpoint http://#{ONE_ADDR}:2633/RPC2
+        export ROCCI_SERVER_BACKEND=opennebula
+        export ROCCI_SERVER_OPENNEBULA_ENDPOINT=http://#{ONE_ADDR}:2633/RPC2
+
+        rvm 2.4.0 do bundle exec bin/oneresources create --endpoint $ROCCI_SERVER_OPENNEBULA_ENDPOINT
       fi
 
       export RAILS_ENV=production
       export HOST=0.0.0.0
       export SECRET_KEY_BASE=a271402df66e152767d7b2149b8773adf242401eb8000e02a55a5d452fe2e47f7cf05969b8b77d1acb6319c9286e13ea3311b3e180115e9327482b5ecfa2f353
-      rvm 2.4.0 do bundle exec puma &
+      rvm 2.4.0 do bundle exec puma --daemon
       sleep 5
     SHELL
   end

@@ -19,6 +19,7 @@ unless Rails.env.production?
     cmd.live_stderr = STDERR
     cmd.run_command
 
+    %i[live_stdout live_stderr].each { |s| cmd.send(s).flush }
     cmd.error!
   end
 
