@@ -2,14 +2,20 @@
 Description="rOCCI-server HTTPS Service"
 After=network.target
 Requires=occi-server.socket
+Requires=memcached.service
 
 [Service]
 Type=simple
 User=rocci
-WorkingDirectory=/opt/occi-server/embedded/app/rOCCI-server
-# ExecStart="bundle exec --keep-file-descriptors puma"
-ExecStart="/opt/occi-server/bin/occi-server"
+Group=rocci
+PrivateTmp=true
 Restart=always
+
+# ExecStart="bin/bundle exec --keep-file-descriptors puma"
+# WorkingDirectory=/opt/rOCCI-server
+
+ExecStart="/opt/occi-server/bin/occi-server"
+WorkingDirectory=/opt/occi-server/embedded/app/rOCCI-server
 
 [Install]
 WantedBy=multi-user.target
