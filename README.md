@@ -2,6 +2,7 @@
 [![Travis](https://img.shields.io/travis/the-rocci-project/rOCCI-server.svg?style=flat-square)](http://travis-ci.org/the-rocci-project/rOCCI-server)
 [![Gemnasium](https://img.shields.io/gemnasium/the-rocci-project/rOCCI-server.svg?style=flat-square)](https://gemnasium.com/the-rocci-project/rOCCI-server)
 [![Code Climate](https://img.shields.io/codeclimate/github/the-rocci-project/rOCCI-server.svg?style=flat-square)](https://codeclimate.com/github/the-rocci-project/rOCCI-server)
+[![DOI](https://zenodo.org/badge/101395646.svg)](https://zenodo.org/badge/latestdoi/101395646)
 
 ## Requirements
 ### Ruby
@@ -12,13 +13,23 @@
 
 ## Installation
 ### Packages
-`TODO: appdb`
+`TODO`
 ### Source
-```
+```bash
 git clone https://github.com/the-rocci-project/rOCCI-server.git
 cd rOCCI-server
-bundle install --deployment
-bundle exec puma
+bundle install --deployment --without development test
+
+bundle exec bin/oneresources create --endpoint http://one.example.org:2633/RPC2 # --username USER --password PASSWD
+
+export RAILS_ENV=production
+export HOST=0.0.0.0
+export SECRET_KEY_BASE=$(head -c 69 /dev/urandom | base64 -w 0)
+
+export ROCCI_SERVER_BACKEND=opennebula
+export ROCCI_SERVER_OPENNEBULA_ENDPOINT=http://one.example.org:2633/RPC2
+
+bundle exec puma # --daemon
 ```
 
 ## Usage
