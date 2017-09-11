@@ -1,0 +1,91 @@
+#!/usr/bin/env ruby
+require 'thor'
+require 'base64'
+require 'openssl'
+require 'opennebula'
+
+module OneToken
+  class CLI < Thor
+    class_option :endpoint,
+                 default: 'http://localhost:2633/RPC2'.freeze,
+                 type: :string
+    class_option :username,
+                 default: 'oneadmin'.freeze,
+                 type: :string
+    class_option :password,
+                 default: 'opennebula'.freeze,
+                 type: :string
+    class_option :name,
+                 required: true,
+                 type: :string
+    class_option :group,
+                 required: true,
+                 type: :string
+    class_option :valid_for,
+                 default: 3600,
+                 type: :numeric
+
+    default_task :unencrypted
+
+    desc 'unencrypted', 'Creates unencrypted token for given user in base64'
+    def unencrypted
+      initialize_opennebula
+      puts Base64.strict_encode64(tokenize(opennebula_token))
+    end
+
+    desc 'encrypted', 'Creates encrypted token for given user in base64'
+    option :type,
+           required: true,
+           type: :string
+    option :key,
+           required: true,
+           type: :string
+    option :iv,
+           required: true,
+           type: :string
+    def encrypted
+      initialize_opennebula
+      puts Base64.strict_encode64(encrypt(tokenize(opennebula_token)))
+    end
+
+    private
+
+    def initialize_opennebula
+      @client = OpenNebula::Client.new("#{options[:username]}:#{options[:password]}", options[:endpoint])
+      @user = OpenNebula::User.new(OpenNebula::User.build_xml, @client)
+    end
+
+    def encrypt(data)
+      cipher     = OpenSSL::Cipher.new(options[:type]).encrypt
+      cipher.key = options[:key]
+      cipher.iv  = options[:iv]
+      cipher.update(data) + cipher.final
+    end
+
+    def tokenize(opennebula_token)
+      "#{options[:name]}:#{opennebula_token}"
+    end
+
+    def opennebula_token
+      one_wrapper \
+        { @user.login(options[:name], '', Time.now.to_i + options[:valid_for], group_by_name(options[:group]).id) }
+    end
+
+    def group_by_name(group_name)
+      group_pool = OpenNebula::GroupPool.new(@client)
+      one_wrapper { group_pool.info }
+      result = group_pool.find { |group| group.name == group_name }
+      raise 'Invalid group name' unless result
+      result
+    end
+
+    def one_wrapper
+      raise 'Block is a required argument' unless block_given?
+      retval = yield
+      raise "Error: #{retval.message}" if OpenNebula.is_error?(retval)
+      retval
+    end
+  end
+end
+
+OneToken::CLI.start(ARGV)
