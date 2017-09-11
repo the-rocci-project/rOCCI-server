@@ -30,15 +30,18 @@ module OneResources
       @resource_document_pool.each { |rd| one_wrapper { rd.delete } }
     end
 
-    desc 'create RES_DIR', 'Creates resource documents from RES_DIR directory'
+    desc 'create', 'Creates resource documents from resource directory'
     option :force,
            default: false,
            type: :boolean
-    def create(res_dir = RES_DIR)
+    option :resources,
+           default: RES_DIR,
+           type: :string
+    def create
       initialize_resource_document_pool
       initialize_group_pool
       @group_pool.each do |group|
-        for_dir(res_dir) do |res|
+        for_dir(options[:resources]) do |res|
           rd_name = "#{group['ID']}_#{Digest::SHA1.hexdigest res['identifier']}"
           raise 'Resource document is already in OpenNebula' \
             if !options[:force] && @resource_document_pool.include_name?(rd_name)
