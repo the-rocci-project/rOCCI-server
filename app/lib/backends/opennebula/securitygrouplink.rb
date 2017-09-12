@@ -20,7 +20,8 @@ module Backends
       end
 
       # @see `Entitylike`
-      def identifiers(_filter = Set.new)
+      def identifiers(filter = Set.new)
+        logger.debug { "#{self.class}: Listing identifiers with filter #{filter.inspect}" }
         sgls = Set.new
         pool(:virtual_machine, :info_mine).each do |vm|
           Constants::Securitygrouplink::ID_EXTRACTOR.call(vm).each do |sg|
@@ -31,7 +32,8 @@ module Backends
       end
 
       # @see `Entitylike`
-      def list(_filter = Set.new)
+      def list(filter = Set.new)
+        logger.debug { "#{self.class}: Listing instances with filter #{filter.inspect}" }
         coll = Occi::Core::Collection.new
         pool(:virtual_machine, :info_mine).each do |vm|
           Constants::Securitygrouplink::ID_EXTRACTOR.call(vm).each { |sg| coll << securitygrouplink_from(sg, vm) }
@@ -41,6 +43,7 @@ module Backends
 
       # @see `Entitylike`
       def instance(identifier)
+        logger.debug { "#{self.class}: Getting instance with ID #{identifier}" }
         matched = Constants::Securitygrouplink::ID_PATTERN.match(identifier)
         vm = pool_element(:virtual_machine, matched[:compute], :info)
         securitygrouplink_from(matched[:sg], vm)
@@ -76,6 +79,8 @@ module Backends
           sg_link, virtual_machine['HISTORY_RECORDS/HISTORY[last()]/CID'],
           :availability_zone
         )
+
+        logger.debug { "#{self.class}: Attached mixins #{sg_link.mixins.inspect} to securitygrouplink##{sg_link.id}" }
       end
     end
   end

@@ -24,7 +24,8 @@ module Backends
       end
 
       # @see `Entitylike`
-      def identifiers(_filter = Set.new)
+      def identifiers(filter = Set.new)
+        logger.debug { "#{self.class}: Listing identifiers with filter #{filter.inspect}" }
         sls = Set.new
         pool(:virtual_machine, :info_mine).each do |vm|
           vm.each('TEMPLATE/DISK') do |disk|
@@ -35,7 +36,8 @@ module Backends
       end
 
       # @see `Entitylike`
-      def list(_filter = Set.new)
+      def list(filter = Set.new)
+        logger.debug { "#{self.class}: Listing instances with filter #{filter.inspect}" }
         coll = Occi::Core::Collection.new
         pool(:virtual_machine, :info_mine).each do |vm|
           vm.each('TEMPLATE/DISK') { |disk| coll << storagelink_from(disk, vm) }
@@ -45,6 +47,7 @@ module Backends
 
       # @see `Entitylike`
       def instance(identifier)
+        logger.debug { "#{self.class}: Getting instance with ID #{identifier}" }
         matched = Constants::Storagelink::ID_PATTERN.match(identifier)
         vm = pool_element(:virtual_machine, matched[:compute], :info)
 
@@ -57,6 +60,7 @@ module Backends
 
       # @see `Entitylike`
       def create(instance)
+        logger.debug { "#{self.class}: Creating instance from #{instance.inspect}" }
         vm = pool_element(:virtual_machine, instance.source_id, :info)
         disks = Backends::Opennebula::Helpers::Counter.xml_elements(vm, 'TEMPLATE/DISK')
 
@@ -75,6 +79,7 @@ module Backends
 
       # @see `Entitylike`
       def delete(identifier)
+        logger.debug { "#{self.class}: Deleting instance #{identifier}" }
         matched = Constants::Storagelink::ID_PATTERN.match(identifier)
         vm = pool_element(:virtual_machine, matched[:compute])
         client(Errors::Backend::EntityActionError) { vm.disk_detach(matched[:disk].to_i) }
@@ -120,6 +125,8 @@ module Backends
           storagelink, virtual_machine['HISTORY_RECORDS/HISTORY[last()]/CID'],
           :availability_zone
         )
+
+        logger.debug { "#{self.class}: Attached mixins #{storagelink.mixins.inspect} to storagelink##{storagelink.id}" }
       end
 
       # :nodoc:

@@ -25,6 +25,7 @@ module Backends
 
       # Flushes all internal caching structures. Data will be reloaded on demand.
       def flush_cache!
+        logger.debug { "#{self.class}: Flushing backend pool cache" }
         @_pool_cache = {}
         @_active_context = nil
       end
@@ -34,6 +35,7 @@ module Backends
       # @see `Backends::Base`
       def post_initialize(args)
         flush_cache!
+        logger.debug { "#{self.class}: Initializing client with #{args.inspect}" }
         @_client = ::OpenNebula::Client.new(
           client_secret(args), args.fetch(:endpoint),
           timeout: args.fetch(:timeout)
@@ -53,6 +55,8 @@ module Backends
         unless name && content
           raise Errors::Backend::InternalError, '`name` and `content` are mandatory for pool construction'
         end
+
+        logger.debug { "#{self.class}: Getting pool for #{name} (#{content}, #{reload})" }
         pool_cache = @_pool_cache.fetch(name, {})
         return pool_cache[content] if !reload && pool_cache.key?(content)
 
@@ -76,6 +80,7 @@ module Backends
           raise Errors::Backend::InternalError, '`name` and `identifier` are mandatory for pool element construction'
         end
 
+        logger.debug { "#{self.class}: Getting pool element #{name} (#{identifier}, #{content})" }
         element = klass_from(name).new_with_id(identifier, @_client)
         client(Errors::Backend::EntityRetrievalError) { element.send(content) } if content
         element
@@ -92,6 +97,7 @@ module Backends
           raise Errors::Backend::InternalError, '`name` and `template` are mandatory for pool element construction'
         end
 
+        logger.debug { "#{self.class}: Allocating pool element #{name} with #{template.inspect} and #{args.inspect}" }
         klass = klass_from(name)
         element = klass.new(klass.build_xml, @_client)
 
@@ -168,6 +174,8 @@ module Backends
           user: pool(:user).detect { |u| u['NAME'] == credentials.fetch(:user_id) }
         }
         groups = pool(:group).to_a
+
+        logger.debug { "#{self.class} Getting active context for #{active_context.inspect} and #{groups}" }
         raise Errors::Backend::AuthorizationError, 'Only scoped access is allowed' if groups.many?
         active_context[:group] = groups.first
 

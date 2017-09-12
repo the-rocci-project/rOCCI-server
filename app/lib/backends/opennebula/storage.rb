@@ -21,12 +21,14 @@ module Backends
       end
 
       # @see `Entitylike`
-      def identifiers(_filter = Set.new)
+      def identifiers(filter = Set.new)
+        logger.debug { "#{self.class}: Listing identifiers with filter #{filter.inspect}" }
         Set.new(pool(:image, :info_mine).map { |im| im['ID'] })
       end
 
       # @see `Entitylike`
-      def list(_filter = Set.new)
+      def list(filter = Set.new)
+        logger.debug { "#{self.class}: Listing instances with filter #{filter.inspect}" }
         coll = Occi::Core::Collection.new
         pool(:image, :info_mine).each { |image| coll << storage_from(image) }
         coll
@@ -34,16 +36,20 @@ module Backends
 
       # @see `Entitylike`
       def instance(identifier)
+        logger.debug { "#{self.class}: Getting instance with ID #{identifier}" }
         storage_from pool_element(:image, identifier, :info)
       end
 
       # @see `Entitylike`
       def create(instance)
+        logger.debug { "#{self.class}: Creating instance from #{instance.inspect}" }
         pool_element_allocate(:image, image_from(instance), candidate_datastore(instance))['ID']
       end
 
       # @see `Entitylike`
       def trigger(identifier, action_instance)
+        logger.debug { "#{self.class}: Triggering action on instance #{identifier} with #{action_instance.inspect}" }
+
         name = action_instance.action.term
         image = pool_element(:image, identifier)
         client(Errors::Backend::EntityActionError) do
@@ -55,6 +61,7 @@ module Backends
 
       # @see `Entitylike`
       def delete(identifier)
+        logger.debug { "#{self.class}: Deleting instance #{identifier}" }
         image = pool_element(:image, identifier)
         client(Errors::Backend::EntityStateError) { image.delete }
       end
@@ -93,11 +100,14 @@ module Backends
         ds.each_xpath('CLUSTERS/ID') do |cid|
           attach_optional_mixin! storage, cid, :availability_zone
         end
+
+        logger.debug { "#{self.class}: Attached mixins #{storage.mixins.inspect} to storage##{storage.id}" }
       end
 
       # :nodoc:
       def enable_actions!(storage)
         return unless storage['occi.storage.state'] == 'online'
+        logger.debug { "#{self.class}: Enabling actions #{actions.inspect} on storage##{storage.id}" }
         Constants::Storage::ONLINE_ACTIONS.keys.each { |a| storage.enable_action(a) }
       end
 
@@ -108,6 +118,7 @@ module Backends
 
         azs.sort!
         cds = pool(:datastore).detect { |ds| ds.type_str == 'IMAGE' && (azs - clusters(ds)).empty? }
+        logger.debug { "#{self.class}: Selecting DS #{cds.inspect} for storage##{instance.id}" }
         cds ? cds.id : raise(Errors::Backend::EntityCreateError, 'Storage spanning requested zones cannot be created')
       end
 

@@ -7,6 +7,9 @@ module Backends
       include Backends::Helpers::AttributesTransferable
       include Backends::Helpers::MixinsAttachable
 
+      # :nodoc:
+      HELPER_NS = Backends::Opennebula::Helpers
+
       class << self
         # @see `served_class` on `Entitylike`
         def served_class
@@ -20,7 +23,8 @@ module Backends
       end
 
       # @see `Entitylike`
-      def identifiers(_filter = Set.new)
+      def identifiers(filter = Set.new)
+        logger.debug { "#{self.class}: Listing identifiers with filter #{filter.inspect}" }
         vnets = Set.new
         pool(:virtual_network, :info_mine).each do |vnet|
           next unless single_reservation?(vnet)
@@ -30,7 +34,8 @@ module Backends
       end
 
       # @see `Entitylike`
-      def list(_filter = Set.new)
+      def list(filter = Set.new)
+        logger.debug { "#{self.class}: Listing instances with filter #{filter.inspect}" }
         coll = Occi::Core::Collection.new
         pool(:virtual_network, :info_mine).each do |vnet|
           next unless single_reservation?(vnet)
@@ -41,11 +46,13 @@ module Backends
 
       # @see `Entitylike`
       def instance(identifier)
+        logger.debug { "#{self.class}: Getting instance with ID #{identifier}" }
         ipreservation_from pool_element(:virtual_network, identifier, :info)
       end
 
       # @see `Entitylike`
       def create(instance)
+        logger.debug { "#{self.class}: Creating instance from #{instance.inspect}" }
         vnet = pool_element(:virtual_network, instance.floatingippool.term)
         res_name = instance['occi.core.title'] || ::SecureRandom.uuid
         res_id = client(Errors::Backend::EntityCreateError) { vnet.reserve(res_name, 1, nil, nil, nil) }
@@ -54,6 +61,7 @@ module Backends
 
       # @see `Entitylike`
       def delete(identifier)
+        logger.debug { "#{self.class}: Deleting instance #{identifier}" }
         vnet = pool_element(:virtual_network, identifier)
         client(Errors::Backend::EntityActionError) { vnet.delete }
       end
@@ -81,15 +89,14 @@ module Backends
         virtual_network.each_xpath('CLUSTERS/ID') do |cid|
           attach_optional_mixin! ipres, cid, :availability_zone
         end
+
+        logger.debug { "#{self.class}: Attached mixins #{ipres.mixins.inspect} to ipreservation##{ipres.id}" }
       end
 
       # :nodoc:
       def single_reservation?(virtual_network)
         return unless virtual_network['PARENT_NETWORK_ID']
-
-        ips = 0
-        virtual_network.each_xpath('AR_POOL/AR/IP') { ips += 1 }
-        return unless ips == 1
+        return unless HELPER_NS::Counter.xml_elements(virtual_network, 'AR_POOL/AR/IP') == 1
 
         virtual_network['AR_POOL/AR/SIZE'].to_i == 1
       end

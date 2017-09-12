@@ -14,6 +14,7 @@ module Backends
       def attach_optional_mixin!(entity, term, type)
         mxn = server_model.send("find_#{type}s").detect { |m| m.term == term }
         return unless mxn
+        logger.debug { "#{self.class}: Attaching #{type}##{term} to #{entity.id} (#{entity.kind})" }
         entity << mxn
       end
     end

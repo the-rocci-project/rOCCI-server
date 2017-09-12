@@ -54,6 +54,7 @@ module Backends
         raise Errors::Backend::InternalError, 'Failed to get mixin skeleton from warehouse' unless skeleton
         model.remove skeleton
 
+        logger.debug { "#{self.class}: Adding #{type} to model with skeleton #{skeleton.inspect}" }
         send("add_#{type}!", model, skeleton)
       end
 
@@ -97,6 +98,7 @@ module Backends
         os.schema = change_namespace(os.schema)
         os.location = URI.parse("/mixin/os_tpl/#{template['ID']}")
         OS_TPL_ATTRS.each_pair { |k, v| os[k].default = template[v] }
+        logger.debug { "#{self.class}: Registering os_tpl with #{os.inspect}" }
       end
 
       # :nodoc:
@@ -119,6 +121,7 @@ module Backends
         res.location = URI.parse("/mixin/resource_tpl/#{doc.term}")
         RES_TPL_CONTENT.each { |k| res.send("#{k}=", doc.send(k)) }
         RES_TPL_ATTRS.each { |a| res[a].default = doc.body[a] }
+        logger.debug { "#{self.class}: Registering resource_tpl with #{res.inspect}" }
       end
 
       # :nodoc:
@@ -140,12 +143,14 @@ module Backends
         flt.title = "Floating IP Pool - #{vnet['NAME']}"
         flt.schema = change_namespace(flt.schema)
         flt.location = URI.parse("/mixin/floatingippool/#{vnet['ID']}")
+        logger.debug { "#{self.class}: Registering floatingippool with #{flt.inspect}" }
       end
 
       # :nodoc:
       def change_default_connectivity!(model)
         dcm = model.find_by_identifier!(Occi::InfrastructureExt::Constants::DEFAULT_CONNECT_MIXIN)
         dcm['eu.egi.fedcloud.compute.default_connectivity'].default = default_connectivity
+        logger.debug { "#{self.class}: Registering default_connectivity with #{dcm.inspect}" }
       end
 
       # :nodoc:

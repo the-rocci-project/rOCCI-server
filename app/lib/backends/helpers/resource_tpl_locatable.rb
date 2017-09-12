@@ -11,6 +11,7 @@ module Backends
       # @return [Occi::Core::Mixin] if resource_tpl found
       def resource_tpl_by_size(virtual_machine, comparable_attributes)
         return unless virtual_machine
+
         server_model.find_resource_tpls.detect do |resource_tpl|
           comparable_attributes.reduce(true) do |match, (key, val)|
             tpl_val = resource_tpl[key] ? resource_tpl[key].default : nil

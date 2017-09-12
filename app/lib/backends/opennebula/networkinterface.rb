@@ -24,7 +24,8 @@ module Backends
       end
 
       # @see `Entitylike`
-      def identifiers(_filter = Set.new)
+      def identifiers(filter = Set.new)
+        logger.debug { "#{self.class}: Listing identifiers with filter #{filter.inspect}" }
         nis = Set.new
         pool(:virtual_machine, :info_mine).each do |vm|
           vm.each('TEMPLATE/NIC') do |nic|
@@ -35,7 +36,8 @@ module Backends
       end
 
       # @see `Entitylike`
-      def list(_filter = Set.new)
+      def list(filter = Set.new)
+        logger.debug { "#{self.class}: Listing instances with filter #{filter.inspect}" }
         coll = Occi::Core::Collection.new
         pool(:virtual_machine, :info_mine).each do |vm|
           vm.each('TEMPLATE/NIC') { |nic| coll << networkinterface_from(nic, vm) }
@@ -45,6 +47,7 @@ module Backends
 
       # @see `Entitylike`
       def instance(identifier)
+        logger.debug { "#{self.class}: Getting instance with ID #{identifier}" }
         matched = Constants::Networkinterface::ID_PATTERN.match(identifier)
         vm = pool_element(:virtual_machine, matched[:compute], :info)
 
@@ -57,13 +60,14 @@ module Backends
 
       # @see `Entitylike`
       def create(instance)
+        logger.debug { "#{self.class}: Creating instance from #{instance.inspect}" }
         vm = pool_element(:virtual_machine, instance.source_id, :info)
         nics = Backends::Opennebula::Helpers::Counter.xml_elements(vm, 'TEMPLATE/NIC')
 
         client(Errors::Backend::EntityCreateError) { vm.nic_attach nic_from(instance, vm) }
         HELPER_NS::Waiter.wait_until(vm, 'RUNNING') do |nvm|
           unless HELPER_NS::Counter.xml_elements(nvm, 'TEMPLATE/NIC') > nics
-            logger.error "Attaching VNET to VM[#{vm['ID']}] failed: #{vm['USER_TEMPLATE/ERROR']}"
+            logger.error { "Attaching VNET to VM[#{vm['ID']}] failed: #{vm['USER_TEMPLATE/ERROR']}" }
             raise Errors::Backend::RemoteError, 'Could not attach network to compute'
           end
         end
@@ -75,6 +79,7 @@ module Backends
 
       # @see `Entitylike`
       def delete(identifier)
+        logger.debug { "#{self.class}: Deleting instance #{identifier}" }
         matched = Constants::Networkinterface::ID_PATTERN.match(identifier)
         vm = pool_element(:virtual_machine, matched[:compute])
         client(Errors::Backend::EntityActionError) { vm.nic_detach(matched[:nic].to_i) }
@@ -128,6 +133,10 @@ module Backends
           networkinterface, virtual_machine['HISTORY_RECORDS/HISTORY[last()]/CID'],
           :availability_zone
         )
+
+        logger.debug do
+          "#{self.class}: Attached mixins #{networkinterface.mixins.inspect} to networkinterface##{networkinterface.id}"
+        end
       end
 
       # :nodoc:
@@ -138,6 +147,8 @@ module Backends
              else
                Occi::Infrastructure::Constants::NETWORK_KIND
              end
+
+        logger.debug { "#{self.class}: Setting target kind on networkinterface##{networkinterface.id} to #{tk}" }
         networkinterface.target_kind = find_by_identifier!(tk)
       end
 

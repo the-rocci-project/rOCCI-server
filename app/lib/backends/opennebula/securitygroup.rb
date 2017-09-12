@@ -21,12 +21,14 @@ module Backends
       end
 
       # @see `Entitylike`
-      def identifiers(_filter = Set.new)
+      def identifiers(filter = Set.new)
+        logger.debug { "#{self.class}: Listing identifiers with filter #{filter.inspect}" }
         Set.new(pool(:security_group, :info_all).map { |sg| sg['ID'] })
       end
 
       # @see `Entitylike`
-      def list(_filter = Set.new)
+      def list(filter = Set.new)
+        logger.debug { "#{self.class}: Listing instances with filter #{filter.inspect}" }
         coll = Occi::Core::Collection.new
         pool(:security_group, :info_all).each { |sg| coll << securitygroup_from(sg) }
         coll
@@ -34,16 +36,19 @@ module Backends
 
       # @see `Entitylike`
       def instance(identifier)
+        logger.debug { "#{self.class}: Getting instance with ID #{identifier}" }
         securitygroup_from pool_element(:security_group, identifier, :info)
       end
 
       # @see `Entitylike`
       def create(instance)
+        logger.debug { "#{self.class}: Creating instance from #{instance.inspect}" }
         pool_element_allocate(:security_group, security_group_from(instance))['ID']
       end
 
       # @see `Entitylike`
       def delete(identifier)
+        logger.debug { "#{self.class}: Deleting instance #{identifier}" }
         sg = pool_element(:security_group, identifier)
         client(Errors::Backend::EntityActionError) { sg.delete }
       end
@@ -77,6 +82,7 @@ module Backends
       def attach_mixins!(_security_group, sg)
         sg << server_model.find_regions.first
         server_model.find_availability_zones.each { |az| sg << az }
+        logger.debug { "#{self.class}: Attached mixins #{sg.mixins.inspect} to securitygroup##{sg.id}" }
       end
 
       # :nodoc:
