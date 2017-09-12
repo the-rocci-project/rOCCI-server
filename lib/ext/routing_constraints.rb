@@ -13,7 +13,6 @@ module Ext
     }.freeze
 
     attr_accessor :logger, :ruleset
-    delegate :debug?, prefix: true, to: :logger
 
     def initialize(args = {})
       @logger = args.fetch(:logger)
@@ -21,7 +20,7 @@ module Ext
     end
 
     def matches?(request)
-      logger.debug "Matching #{request.uuid} against #{ruleset}" if logger_debug?
+      logger.debug { "Matching #{request.uuid} against #{ruleset}" }
       ruleset.reduce(true) do |result, rule|
         rule_methods = RULE_MAP.fetch(rule)
         result && rule_methods.reduce(true) { |all, mtd| all && send(mtd, request) }

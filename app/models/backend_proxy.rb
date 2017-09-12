@@ -3,7 +3,7 @@ class BackendProxy
   def self.available_backend_types
     bds = Hash[available_backend_files.collect { |bd| [bd.to_sym, Backends.const_get(bd.classify)] }]
     bds.keep_if { |_, bd| (bd.class == Module) && bd.respond_to?(:runnable?) && bd.runnable? }
-    Rails.logger.debug "Available backend types: #{bds}"
+    Rails.logger.debug { "Available backend types: #{bds}" }
     bds
   end
 
@@ -206,7 +206,7 @@ class BackendProxy
 
   # :nodoc:
   def initialize_proxy(subtype)
-    logger.debug "Creating a proxy for #{subtype} (#{type} backend)"
+    logger.debug { "Creating a proxy for #{subtype} (#{type} backend)" }
     bklass = klass_in_namespace(backend_namespace, subtype)
     check_version! api_version, bklass.api_version
     bklass.new default_backend_options.merge(options)
