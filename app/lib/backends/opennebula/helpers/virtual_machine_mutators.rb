@@ -33,6 +33,7 @@ module Backends
 
           idx = 1
           template.each('TEMPLATE/NIC') do |_nic|
+            logger.debug { "#{self.class}: Setting SecurityGroups #{sgs.inspect} on NIC[#{idx}]" }
             template.modify_element "TEMPLATE/NIC[#{idx}]/SECURITY_GROUPS", sgs
             idx += 1
           end
@@ -47,11 +48,13 @@ module Backends
           sched_reqs << ' & ' if sched_reqs.present?
           sched_reqs << "(CLUSTER_ID = #{az})"
 
+          logger.debug { "#{self.class}: Setting SCHED_REQUIREMENTS to #{sched_reqs.inspect}" }
           template.modify_element 'TEMPLATE/SCHED_REQUIREMENTS', sched_reqs
         end
 
         # :nodoc:
         def add_custom!(template_str, _compute)
+          logger.debug { "#{self.class}: Adding identity #{active_identity.inspect} to template" }
           template_str << "\n USER_IDENTITY=\"#{active_identity}\""
           template_str << "\n USER_X509_DN=\"#{active_identity}\""
         end
@@ -68,6 +71,7 @@ module Backends
           data = { instances: [] }
           compute['eu.egi.fedcloud.compute.gpu.count'].times { data[:instances] << gpu }
 
+          logger.debug { "#{self.class}: Adding GPU(s) #{data[:instances].first.inspect}" }
           add_erb! template_str, data, 'compute_pci.erb'
         end
 
@@ -77,12 +81,14 @@ module Backends
             instances: compute.networkinterfaces,
             security_groups: compute.securitygrouplinks.map(&:target_id)
           }
+          logger.debug { "#{self.class}: Adding NIC(s) #{data.inspect}" }
           add_erb! template_str, data, 'compute_nic.erb'
         end
 
         # :nodoc:
         def add_disks!(template_str, compute)
           data = { instances: compute.storagelinks }
+          logger.debug { "#{self.class}: Adding DISK(s) #{data.inspect}" }
           add_erb! template_str, data, 'compute_disk.erb'
         end
 
@@ -90,6 +96,7 @@ module Backends
         def add_erb!(template_str, data, template_file)
           template_path = File.join(template_directory, template_file)
 
+          logger.debug { "#{self.class}: Rendering ERB in #{template_path.inspect} with #{data.inspect}" }
           template_str << "\n"
           template_str << erb_render(template_path, data)
         end

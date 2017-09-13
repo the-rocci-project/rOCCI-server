@@ -16,6 +16,7 @@ module Backends
         end
 
         mappers.each do |mapper|
+          logger.debug { "#{self.class}: Transfering attributes #{mapper.keys.inspect}" }
           mapper.each_pair do |k, v|
             next unless target.attributes.key?(k)
             target[k] = v.call(source)

@@ -23,12 +23,14 @@ module Backends
       end
 
       # @see `Entitylike`
-      def identifiers(_filter = Set.new)
+      def identifiers(filter = Set.new)
+        logger.debug { "#{self.class}: Listing identifiers with filter #{filter.inspect}" }
         Set.new(pool(:virtual_machine, :info_mine).map { |vm| vm['ID'] })
       end
 
       # @see `Entitylike`
-      def list(_filter = Set.new)
+      def list(filter = Set.new)
+        logger.debug { "#{self.class}: Listing instances with filter #{filter.inspect}" }
         coll = Occi::Core::Collection.new
         pool(:virtual_machine, :info_mine).each { |vm| coll << compute_from(vm) }
         coll
@@ -36,19 +38,20 @@ module Backends
 
       # @see `Entitylike`
       def instance(identifier)
+        logger.debug { "#{self.class}: Getting instance with ID #{identifier}" }
         compute_from pool_element(:virtual_machine, identifier, :info)
       end
 
       # @see `Entitylike`
       def create(instance)
+        logger.debug { "#{self.class}: Creating instance from #{instance.inspect}" }
         pool_element_allocate(:virtual_machine, virtual_machine_from(instance))['ID']
       end
 
       # @see `Entitylike`
       def partial_update(identifier, fragments)
-        res_tpl = fragments[:mixins].detect do |m|
-          m.respond_to?(:depends?) && m.depends?(Occi::Infrastructure::Mixins::ResourceTpl.new)
-        end
+        logger.debug { "#{self.class}: Partially updating instance #{identifier} with #{fragments.inspect}" }
+        res_tpl = resource_tpl_from(fragments)
         raise Errors::Backend::EntityActionError, 'Resource template not provided' unless res_tpl
 
         vm = pool_element(:virtual_machine, identifier, :info)
@@ -64,6 +67,8 @@ module Backends
 
       # @see `Entitylike`
       def trigger(identifier, action_instance)
+        logger.debug { "#{self.class}: Triggering action on instance #{identifier} with #{action_instance.inspect}" }
+
         name = action_instance.action.term
         vm = pool_element(:virtual_machine, identifier)
         client(Errors::Backend::EntityActionError) do
@@ -76,6 +81,7 @@ module Backends
 
       # @see `Entitylike`
       def delete(identifier)
+        logger.debug { "#{self.class}: Deleting instance #{identifier}" }
         vm = pool_element(:virtual_machine, identifier)
         client(Errors::Backend::EntityActionError) { vm.terminate(true) }
       end
@@ -115,9 +121,15 @@ module Backends
       end
 
       # :nodoc:
+      def resource_tpl_from(fragments)
+        fragments[:mixins].detect do |m|
+          m.respond_to?(:depends?) && m.depends?(Occi::Infrastructure::Mixins::ResourceTpl.new)
+        end
+      end
+
+      # :nodoc:
       def attach_mixins!(virtual_machine, compute)
-        compute << find_by_identifier!(Occi::Infrastructure::Constants::USER_DATA_MIXIN)
-        compute << find_by_identifier!(Occi::Infrastructure::Constants::SSH_KEY_MIXIN)
+        Constants::Compute::CONTEXT_MIXINS.each { |id| compute << find_by_identifier!(id) }
         compute << server_model.find_regions.first
 
         attach_optional_mixin! compute, virtual_machine['HISTORY_RECORDS/HISTORY[last()]/CID'], :availability_zone
@@ -125,6 +137,8 @@ module Backends
 
         res_tpl = resource_tpl_by_size(virtual_machine, Constants::Compute::COMPARABLE_ATTRIBUTES)
         compute << res_tpl if res_tpl
+
+        logger.debug { "#{self.class}: Attached mixins #{compute.mixins.inspect} to compute##{compute.id}" }
       end
 
       # :nodoc:
@@ -138,6 +152,7 @@ module Backends
                     []
                   end
 
+        logger.debug { "#{self.class}: Enabling actions #{actions.inspect} on compute##{compute.id}" }
         actions.each { |a| compute.enable_action(a) }
       end
 
@@ -146,6 +161,7 @@ module Backends
         %i[networkinterface storagelink securitygrouplink].each do |type|
           backend_proxy.send(type).identifiers.each do |id|
             next unless id.start_with?("compute_#{compute.id}_")
+            logger.debug { "#{self.class}: Attaching #{type}##{id} to compute##{compute.id}" }
             compute << backend_proxy.send(type).instance(id)
           end
         end

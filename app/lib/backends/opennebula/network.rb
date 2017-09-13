@@ -21,7 +21,8 @@ module Backends
       end
 
       # @see `Entitylike`
-      def identifiers(_filter = Set.new)
+      def identifiers(filter = Set.new)
+        logger.debug { "#{self.class}: Listing identifiers with filter #{filter.inspect}" }
         vnets = Set.new
         excluded = backend_proxy.ipreservation.identifiers
         pool(:virtual_network, :info_all).each do |vnet|
@@ -32,7 +33,8 @@ module Backends
       end
 
       # @see `Entitylike`
-      def list(_filter = Set.new)
+      def list(filter = Set.new)
+        logger.debug { "#{self.class}: Listing instances with filter #{filter.inspect}" }
         coll = Occi::Core::Collection.new
         excluded = backend_proxy.ipreservation.identifiers
         pool(:virtual_network, :info_all).each do |vnet|
@@ -44,11 +46,13 @@ module Backends
 
       # @see `Entitylike`
       def instance(identifier)
+        logger.debug { "#{self.class}: Getting instance with ID #{identifier}" }
         network_from pool_element(:virtual_network, identifier, :info)
       end
 
       # @see `Entitylike`
       def create(instance)
+        logger.debug { "#{self.class}: Creating instance from #{instance.inspect}" }
         vnet_template = virtual_network_from(instance)
 
         # TODO: multi-cluster networks
@@ -58,6 +62,7 @@ module Backends
 
       # @see `Entitylike`
       def delete(identifier)
+        logger.debug { "#{self.class}: Deleting instance #{identifier}" }
         vnet = pool_element(:virtual_network, identifier)
         client(Errors::Backend::EntityActionError) { vnet.delete }
       end
@@ -99,6 +104,8 @@ module Backends
         virtual_network.each_xpath('CLUSTERS/ID') do |cid|
           attach_optional_mixin! network, cid, :availability_zone
         end
+
+        logger.debug { "#{self.class}: Attached mixins #{network.mixins.inspect} to network##{network.id}" }
       end
 
       # :nodoc:
@@ -114,6 +121,7 @@ module Backends
                 Occi::InfrastructureExt::Constants::NAT_NET_MIXIN
               end
 
+        logger.debug { "#{self.class}: Setting type on network##{network.id} to #{mxn.inspect}" }
         network << find_by_identifier!(mxn) if mxn
       end
 
