@@ -76,6 +76,12 @@ module Backends
 
         # All actions
         ACTIONS = ACTIVE_ACTIONS.merge(INACTIVE_ACTIONS).freeze
+
+        # Mixins to add for contextualization attributes
+        CONTEXT_MIXINS = [
+          Occi::Infrastructure::Constants::USER_DATA_MIXIN,
+          Occi::Infrastructure::Constants::SSH_KEY_MIXIN
+        ].freeze
       end
     end
   end

@@ -129,8 +129,7 @@ module Backends
 
       # :nodoc:
       def attach_mixins!(virtual_machine, compute)
-        compute << find_by_identifier!(Occi::Infrastructure::Constants::USER_DATA_MIXIN)
-        compute << find_by_identifier!(Occi::Infrastructure::Constants::SSH_KEY_MIXIN)
+        Constants::Compute::CONTEXT_MIXINS.each { |id| compute << find_by_identifier!(id) }
         compute << server_model.find_regions.first
 
         attach_optional_mixin! compute, virtual_machine['HISTORY_RECORDS/HISTORY[last()]/CID'], :availability_zone

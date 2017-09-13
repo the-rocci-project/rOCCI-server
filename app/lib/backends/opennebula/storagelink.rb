@@ -65,12 +65,7 @@ module Backends
         disks = Backends::Opennebula::Helpers::Counter.xml_elements(vm, 'TEMPLATE/DISK')
 
         client(Errors::Backend::EntityCreateError) { vm.disk_attach disk_from(instance) }
-        HELPER_NS::Waiter.wait_until(vm, 'RUNNING', Constants::Storagelink::ATTACH_TIMEOUT) do |nvm|
-          unless HELPER_NS::Counter.xml_elements(nvm, 'TEMPLATE/DISK') > disks
-            logger.error "Attaching IMAGE to VM[#{vm['ID']}] failed: #{vm['USER_TEMPLATE/ERROR']}"
-            raise Errors::Backend::RemoteError, 'Could not attach storage to compute'
-          end
-        end
+        wait_for_attached_disk! vm, disks
 
         Constants::Storagelink::ATTRIBUTES_CORE['occi.core.id'].call(
           [{ 'DISK_ID' => vm['TEMPLATE/DISK[last()]/DISK_ID'] }, vm]
@@ -127,6 +122,16 @@ module Backends
         )
 
         logger.debug { "#{self.class}: Attached mixins #{storagelink.mixins.inspect} to storagelink##{storagelink.id}" }
+      end
+
+      # :nodoc:
+      def wait_for_attached_disk!(vm, disks)
+        HELPER_NS::Waiter.wait_until(vm, 'RUNNING', Constants::Storagelink::ATTACH_TIMEOUT) do |nvm|
+          unless HELPER_NS::Counter.xml_elements(nvm, 'TEMPLATE/DISK') > disks
+            logger.error "Attaching IMAGE to VM[#{vm['ID']}] failed: #{vm['USER_TEMPLATE/ERROR']}"
+            raise Errors::Backend::RemoteError, 'Could not attach storage to compute'
+          end
+        end
       end
 
       # :nodoc:

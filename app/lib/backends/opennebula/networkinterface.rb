@@ -65,12 +65,7 @@ module Backends
         nics = Backends::Opennebula::Helpers::Counter.xml_elements(vm, 'TEMPLATE/NIC')
 
         client(Errors::Backend::EntityCreateError) { vm.nic_attach nic_from(instance, vm) }
-        HELPER_NS::Waiter.wait_until(vm, 'RUNNING') do |nvm|
-          unless HELPER_NS::Counter.xml_elements(nvm, 'TEMPLATE/NIC') > nics
-            logger.error { "Attaching VNET to VM[#{vm['ID']}] failed: #{vm['USER_TEMPLATE/ERROR']}" }
-            raise Errors::Backend::RemoteError, 'Could not attach network to compute'
-          end
-        end
+        wait_for_attached_nic! vm, nics
 
         Constants::Networkinterface::ATTRIBUTES_CORE['occi.core.id'].call(
           [{ 'NIC_ID' => vm['TEMPLATE/NIC[last()]/NIC_ID'] }, vm]
@@ -155,6 +150,16 @@ module Backends
       # :nodoc:
       def ipreservation?(identifier)
         backend_proxy.ipreservation.identifiers.include?(identifier)
+      end
+
+      # :nodoc:
+      def wait_for_attached_nic!(vm, nics)
+        HELPER_NS::Waiter.wait_until(vm, 'RUNNING') do |nvm|
+          unless HELPER_NS::Counter.xml_elements(nvm, 'TEMPLATE/NIC') > nics
+            logger.error { "Attaching VNET to VM[#{vm['ID']}] failed: #{vm['USER_TEMPLATE/ERROR']}" }
+            raise Errors::Backend::RemoteError, 'Could not attach network to compute'
+          end
+        end
       end
 
       # :nodoc:

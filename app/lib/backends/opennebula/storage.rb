@@ -119,9 +119,14 @@ module Backends
         azs << default_cluster if azs.empty?
 
         azs.sort!
-        cds = pool(:datastore).detect { |ds| ds.type_str == 'IMAGE' && (azs - clusters(ds)).empty? }
+        cds = pool(:datastore).detect { |ds| suitable?(ds, azs) }
         logger.debug { "#{self.class}: Selecting DS #{cds.inspect} for storage##{instance.id}" }
         cds ? cds.id : raise(Errors::Backend::EntityCreateError, 'Storage spanning requested zones cannot be created')
+      end
+
+      # :nodoc:
+      def suitable?(ds, azs)
+        ds.type_str == 'IMAGE' && (azs - clusters(ds)).empty?
       end
 
       # :nodoc:
