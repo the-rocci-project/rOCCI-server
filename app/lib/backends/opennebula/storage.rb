@@ -107,7 +107,9 @@ module Backends
       # :nodoc:
       def enable_actions!(storage)
         return unless storage['occi.storage.state'] == 'online'
-        logger.debug { "#{self.class}: Enabling actions #{actions.inspect} on storage##{storage.id}" }
+        logger.debug do
+          "#{self.class}: Enabling actions #{Constants::Storage::ONLINE_ACTIONS.keys.inspect} on storage##{storage.id}"
+        end
         Constants::Storage::ONLINE_ACTIONS.keys.each { |a| storage.enable_action(a) }
       end
 
