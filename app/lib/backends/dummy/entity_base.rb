@@ -13,7 +13,8 @@ module Backends
       ].freeze
 
       # @see `Entitylike`
-      def list(_filter = Set.new)
+      def list(filter = Set.new)
+        logger.debug { "#{self.class}: Listing instances with filter #{filter.inspect}" }
         coll = Occi::Core::Collection.new
         DUMMY_IDS.each { |id| coll << instance(id) }
         coll
@@ -21,6 +22,7 @@ module Backends
 
       # @see `Entitylike`
       def instance(identifier)
+        logger.debug { "#{self.class}: Getting instance with ID #{identifier}" }
         instance = instance_builder.get(self.class.entity_identifier)
         instance['occi.core.id'] = identifier
         instance['occi.core.title'] = identifier
@@ -29,27 +31,32 @@ module Backends
 
       # @see `Entitylike`
       def create(instance)
+        logger.debug { "#{self.class}: Creating instance from #{instance.inspect}" }
         instance['occi.core.id'] = DUMMY_IDS.first
         instance['occi.core.id']
       end
 
       # @see `Entitylike`
-      def partial_update(identifier, _fragments)
+      def partial_update(identifier, fragments)
+        logger.debug { "#{self.class}: Partially updating instance #{identifier} with #{fragments.inspect}" }
         instance identifier
       end
 
       # @see `Entitylike`
-      def update(identifier, _new_instance)
+      def update(identifier, new_instance)
+        logger.debug { "#{self.class}: Updating instance #{identifier} with #{new_instance.inspect}" }
         instance identifier
       end
 
       # @see `Entitylike`
-      def trigger(_identifier, _action_instance)
+      def trigger(identifier, action_instance)
+        logger.debug { "#{self.class}: Triggering action on instance #{identifier} with #{action_instance.inspect}" }
         Occi::Core::Collection.new
       end
 
       # @see `Entitylike`
       def delete(identifier)
+        logger.debug { "#{self.class}: Deleting instance #{identifier}" }
         identifier
       end
     end

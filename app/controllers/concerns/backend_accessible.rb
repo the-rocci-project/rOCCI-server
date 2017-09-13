@@ -7,7 +7,7 @@ module BackendAccessible
     return @_backend_proxy if @_backend_proxy
 
     backend_type = app_config.fetch('backend')
-    logger.debug "Starting backend proxy for #{backend_type}"
+    logger.debug { "Starting backend proxy for #{backend_type}" }
     @_backend_proxy = BackendProxy.new(
       type: backend_type.to_sym, options: app_config.fetch(backend_type, {}),
       logger: logger, credentials: backend_credentials

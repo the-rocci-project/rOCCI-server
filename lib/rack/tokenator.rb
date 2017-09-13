@@ -20,10 +20,10 @@ module Rack
 
       processed_token = env[TOKEN_HEADER_KEY].blank? ? nil : process(env[TOKEN_HEADER_KEY])
       if processed_token
-        logger.debug "Identified token from #{env['REMOTE_ADDR']} as #{processed_token.fetch(:user).inspect}"
+        logger.debug { "Identified token from #{env['REMOTE_ADDR']} as #{processed_token.fetch(:user).inspect}" }
         success_env! env, processed_token
       else
-        logger.debug "No or invalid token from #{env['REMOTE_ADDR']}"
+        logger.debug { "No or invalid token from #{env['REMOTE_ADDR']}" }
         return [401, response_headers, ['Not Authorized']]
       end
 
@@ -77,7 +77,7 @@ module Rack
       return unless token
       return token if app_config['token_cipher'].blank?
 
-      logger.debug "Decrypting token as #{app_config['token_cipher'].inspect}"
+      logger.debug { "Decrypting token as #{app_config['token_cipher'].inspect}" }
       decipher = decrypt_cipher(app_config['token_cipher'], app_config['token_key'], app_config['token_iv'])
       decipher.update(token) + decipher.final
     rescue => ex

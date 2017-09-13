@@ -7,6 +7,7 @@ module Backends
 
       # @see `Extenderlike`
       def populate!(model)
+        logger.debug { "#{self.class}: Populating model instance with extensions" }
         Warehouse.bootstrap! model
       end
     end

@@ -17,7 +17,7 @@ module ModelAccessible
   #
   # @return [Occi::Core::Model] partially initialized server model
   def bootstrap_server_model!
-    logger.debug "Bootstrapping server model with #{MODEL_FLAVORS}"
+    logger.debug { "Bootstrapping server model with #{MODEL_FLAVORS}" }
     @_server_model = Occi::InfrastructureExt::Model.new
     MODEL_FLAVORS.each { |flv| @_server_model.send "load_#{flv}!" }
     @_server_model
@@ -27,7 +27,7 @@ module ModelAccessible
   #
   # @return [Occi::Core::Model] fully initialized server model
   def extend_server_model!
-    logger.debug 'Extending server model with backend mixins'
+    logger.debug { 'Extending server model with backend mixins' }
     backend_proxy_for('model_extender').populate! @_server_model
   end
 end

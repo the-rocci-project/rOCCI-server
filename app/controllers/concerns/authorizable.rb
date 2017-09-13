@@ -53,7 +53,7 @@ module Authorizable
   # @return [String] user name
   def authorize_user!
     return unless authorization_pending?
-    logger.debug "User authorization data #{request_user.inspect}:#{request_token.inspect}" if logger_debug?
+    logger.debug { "User authorization data #{request_user.inspect}:#{request_token.inspect}" }
 
     request_authorized? ? authorize_set! : authorize_unset!
   end
