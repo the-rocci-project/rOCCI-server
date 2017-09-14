@@ -9,6 +9,7 @@ module Backends
       include Backends::Helpers::MixinsAttachable
       include Backends::Helpers::ErbRenderer
       include Backends::Opennebula::Helpers::VirtualMachineMutators
+      include Backends::Opennebula::Helpers::DeferrableAction
 
       class << self
         # @see `served_class` on `Entitylike`
@@ -59,7 +60,7 @@ module Backends
 
         ::Opennebula::ComputeResizeJob.perform_later(
           client_secret(options), options.fetch(:endpoint),
-          identifier, serializable_attributes(res_tpl.attributes)
+          identifier: identifier, size: serializable_attributes(res_tpl.attributes, :default)
         )
 
         instance identifier
@@ -67,16 +68,7 @@ module Backends
 
       # @see `Entitylike`
       def trigger(identifier, action_instance)
-        logger.debug { "#{self.class}: Triggering action on instance #{identifier} with #{action_instance.inspect}" }
-
-        name = action_instance.action.term
-        vm = pool_element(:virtual_machine, identifier)
-        client(Errors::Backend::EntityActionError) do
-          Constants::Compute::ACTIONS[name].call(vm, action_instance)
-        end
-
-        # TODO: return os_tpl mixin for `save`
-        Occi::Core::Collection.new
+        deferred_action identifier, action_instance, ::Opennebula::ComputeActionJob, 'occi.compute.state'
       end
 
       # @see `Entitylike`
@@ -145,9 +137,9 @@ module Backends
       def enable_actions!(compute)
         actions = case compute['occi.compute.state']
                   when 'active'
-                    Constants::Compute::ACTIVE_ACTIONS.keys
+                    ::Opennebula::ComputeActionJob::ACTIVE_ACTIONS
                   when 'inactive'
-                    Constants::Compute::INACTIVE_ACTIONS.keys
+                    ::Opennebula::ComputeActionJob::INACTIVE_ACTIONS
                   else
                     []
                   end
@@ -165,11 +157,6 @@ module Backends
             compute << backend_proxy.send(type).instance(id)
           end
         end
-      end
-
-      # :nodoc:
-      def serializable_attributes(attributes)
-        Hash[attributes.map { |k, v| [k, v.default] }]
       end
 
       # :nodoc:

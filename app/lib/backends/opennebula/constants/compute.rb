@@ -8,8 +8,7 @@ module Backends
           'PROLOG' => 'waiting',
           'BOOT' => 'waiting',
           'MIGRATE' => 'waiting',
-          'EPILOG' => 'waiting',
-          'LCM_INIT' => 'waiting'
+          'EPILOG' => 'waiting'
         }.freeze
 
         # Attribute mapping hash for Core
@@ -57,25 +56,6 @@ module Backends
           'eu.egi.fedcloud.compute.gpu.class' => ->(vm, val) { vm['TEMPLATE/PCI[1]/CLASS'] == val },
           'eu.egi.fedcloud.compute.gpu.device' => ->(vm, val) { vm['TEMPLATE/PCI[1]/DEVICE'] == val }
         }.freeze
-
-        # Actions to enable when active
-        ACTIVE_ACTIONS = {
-          'stop' => ->(vm, _ai) { vm.poweroff(true) },
-          'restart' => ->(vm, _ai) { vm.reboot(true) },
-          'suspend' => ->(vm, _ai) { vm.suspend }
-        }.freeze
-
-        # Actions to enable when inactive
-        INACTIVE_ACTIONS = {
-          'start' => ->(vm, _ai) { vm.resume },
-          'save' => lambda do |vm, ai|
-            template_name = ai['name'].present? ? ai['name'] : "saved-compute-#{vm['ID']}-#{Time.now.utc.to_i}"
-            vm.save_as_template(template_name, true)
-          end
-        }.freeze
-
-        # All actions
-        ACTIONS = ACTIVE_ACTIONS.merge(INACTIVE_ACTIONS).freeze
 
         # Mixins to add for contextualization attributes
         CONTEXT_MIXINS = [
