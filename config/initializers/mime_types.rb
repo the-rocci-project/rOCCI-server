@@ -1,10 +1,14 @@
-# Be sure to restart your server when you modify this file.
+# Clean-up Rails defaults
+Mime::SET.symbols.each { |mime| Mime::Type.unregister(mime) }
 
-# Add new mime types for use in respond_to blocks:
-# Mime::Type.register "text/richtext", :rtf
+## Our MIME Types
+# Full renderings
+Mime::Type.register 'application/occi+json', :occi_json
+Mime::Type.register 'application/json', :json, %w[text/x-json application/jsonrequest]
+
+# Legacy renderings
 Mime::Type.register 'text/plain', :text, [], %w[txt]
 Mime::Type.register 'text/occi', :headers
-Mime::Type.register 'text/uri-list', :uri_list
 
-Mime::Type.unregister :json # we have to get rid of the old definition first
-Mime::Type.register 'application/json', :json, %w[text/x-json application/jsonrequest application/occi+json]
+# Only for locations
+Mime::Type.register 'text/uri-list', :uri_list

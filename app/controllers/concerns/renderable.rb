@@ -3,7 +3,7 @@ module Renderable
 
   # Format constants
   URI_FORMATS = %i[uri_list].freeze
-  FULL_FORMATS = %i[json text headers].freeze
+  FULL_FORMATS = %i[occi_json json text headers].freeze
   ALL_FORMATS = [URI_FORMATS, FULL_FORMATS].flatten.freeze
 
   included do
@@ -18,6 +18,7 @@ module Renderable
 
   # Checks request format and defaults or returns HTTP[406].
   def validate_requested_format!
+    request.format = FULL_FORMATS.first unless request.format && request.format.symbol
     return if ALL_FORMATS.include?(request.format.symbol)
     render_error :not_acceptable, 'Requested media format is not acceptable'
   end
