@@ -27,7 +27,7 @@ printf "######################################################################\n
 printf "############################## Model #################################\n"
 printf "######################################################################\n"
 
-FORMATS=(plain json)
+FORMATS=(plain json occi_json)
 
 for FORMAT in ${FORMATS[@]} ; do
   MODEL_PATH="/-/"
@@ -69,7 +69,7 @@ printf "######################################################################\n
 printf "############################# Create #################################\n"
 printf "######################################################################\n"
 
-FORMATS=(json plain)
+FORMATS=(occi_json json plain)
 LOCATIONS=(compute network storage ipreservation securitygroup)
 # LOCATIONS+=(networkinterface storagelink securitygrouplink)
 DATA_DIR="${TESTS_DIR}/data/one/"
@@ -79,7 +79,7 @@ for FORMAT in ${FORMATS[@]} ; do
   for LOCATION in ${LOCATIONS[@]} ; do
     INSTANCES_PATH="/${LOCATION}/"
     ENTITY=$(mktemp "/tmp/rocci-server-integration-${LOCATION}-${FORMAT}.XXXXXXXXXXXX")
-    cp "${DATA_DIR}/${LOCATION}.${FORMAT}" "$ENTITY"
+    cp "${DATA_DIR}/${LOCATION}.${FORMAT#occi_}" "$ENTITY"
     sed -i "s/a262ad95\-c093\-4814\-8c0d\-bc6d475bb845/${LOCATION}\-a262ad95\-c093\-4814\-8c0d\-bc6d475bb845\-$FORMAT/g" "$ENTITY"
     OUTPUT=$(post_$FORMAT "$INSTANCES_PATH" "$ENTITY")
 
@@ -101,7 +101,7 @@ printf "######################################################################\n
 printf "############################## Get ###################################\n"
 printf "######################################################################\n"
 
-FORMATS=(json plain)
+FORMATS=(occi_json json plain)
 
 for FORMAT in ${FORMATS[@]} ; do
   for CLEANUP in ${CLEANUPS[@]} ; do

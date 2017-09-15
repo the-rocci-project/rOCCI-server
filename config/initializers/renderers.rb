@@ -25,3 +25,8 @@ ActionController::Renderers.add :json do |obj, _options|
   self.content_type = Mime::Type.lookup_by_extension(:json)
   obj.to_json
 end
+
+ActionController::Renderers.add :occi_json do |obj, _options|
+  self.content_type = Mime::Type.lookup_by_extension(:occi_json)
+  obj.to_json
+end

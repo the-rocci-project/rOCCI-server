@@ -27,7 +27,7 @@ printf "######################################################################\n
 printf "############################## Model #################################\n"
 printf "######################################################################\n"
 
-FORMATS=(plain json)
+FORMATS=(plain json occi_json)
 
 for FORMAT in ${FORMATS[@]} ; do
   MODEL_PATH="/-/"
@@ -70,7 +70,7 @@ printf "############################## Get ###################################\n
 printf "######################################################################\n"
 
 FAKE_ID="a262ad95-c093-4814-8c0d-bc6d475bb845"
-FORMATS=(json plain)
+FORMATS=(occi_json json plain)
 LOCATIONS=(compute network storage ipreservation securitygroup)
 LOCATIONS+=(networkinterface storagelink securitygrouplink)
 
@@ -106,7 +106,7 @@ printf "######################################################################\n
 printf "############################# Create #################################\n"
 printf "######################################################################\n"
 
-FORMATS=(json plain)
+FORMATS=(occi_json json plain)
 LOCATIONS=(compute network storage ipreservation securitygroup)
 LOCATIONS+=(networkinterface storagelink securitygrouplink)
 DATA_DIR="${TESTS_DIR}/data/dummy/"
@@ -114,7 +114,7 @@ DATA_DIR="${TESTS_DIR}/data/dummy/"
 for FORMAT in ${FORMATS[@]} ; do
   for LOCATION in ${LOCATIONS[@]} ; do
     INSTANCES_PATH="/${LOCATION}/"
-    OUTPUT=$(post_$FORMAT "$INSTANCES_PATH" "${DATA_DIR}/${LOCATION}.${FORMAT}")
+    OUTPUT=$(post_$FORMAT "$INSTANCES_PATH" "${DATA_DIR}/${LOCATION}.${FORMAT#occi_}")
 
     RETVAL=$?
     if [ $RETVAL -ne 0 ] ; then

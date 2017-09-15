@@ -91,6 +91,11 @@ function delete {
 
 # get_json '/-/'
 function get_json {
+  get $1 'application/json'
+}
+
+# get_occi_json '/-/'
+function get_occi_json {
   get $1 'application/occi+json'
 }
 
@@ -111,6 +116,11 @@ function post_with_format {
 
 # post_json '/compute/' '/path/to/file.json'
 function post_json {
+  post_with_format $1 $2 'application/json'
+}
+
+# post_occi_json '/compute/' '/path/to/file.json'
+function post_occi_json {
   post_with_format $1 $2 'application/occi+json'
 }
 
