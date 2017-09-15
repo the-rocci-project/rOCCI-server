@@ -1,36 +1,25 @@
 module Opennebula
-  class ComputeResizeJob < ApplicationJob
-    queue_as :opennebula
+  class ComputeResizeJob < OpennebulaJob
+    # State to wait for
+    TARGET_STATE = 'UNDEPLOYED'.freeze
 
-    # Default timeout in seconds
-    DEFAULT_TIMEOUT = 900
-
-    rescue_from(Errors::JobError) do |ex|
-      logger.error "Delayed job failed: #{ex}"
-    end
-
-    rescue_from(Errors::Backend::EntityTimeoutError) do |_ex|
-      logger.error "Timed out while waiting for job completion [#{DEFAULT_TIMEOUT}s]"
-    end
-
-    rescue_from(Errors::Backend::EntityRetrievalError) do |ex|
-      logger.error "Failed to get instance state when waiting: #{ex}"
-    end
-
-    rescue_from(Errors::Backend::RemoteError) do |ex|
-      logger.fatal "Failed during transition: #{ex}"
-    end
-
+    # Performs resize on VirtualMachine with the given `identifier`.
+    #
     # @param secret [String] credentials for ONe
     # @param endpoint [String] ONe XML RPC endpoint
-    # @param identifier [String] virtual machine identifier
-    # @param size [Hash] sizing attributes
-    def perform(secret, endpoint, identifier, size)
-      vm = ::OpenNebula::VirtualMachine.new_with_id(identifier, ::OpenNebula::Client.new(secret, endpoint))
-      ::Backends::Opennebula::Helpers::Waiter.wait_until(vm, 'UNDEPLOYED', DEFAULT_TIMEOUT, :state_str)
-      handle { vm.resize(size_template(size), true) }
+    # @param args [Hash] OpenNebula job arguments
+    # @option args [String] :identifier virtual machine identifier
+    # @option args [Hash] :size sizing attributes
+    def perform(secret, endpoint, args = {})
+      super
+      vm = virtual_machine(args.fetch(:identifier), TARGET_STATE)
+      template = size_template(args.fetch(:size))
+
+      handle { vm.resize(template, true) }
       handle { vm.resume }
     end
+
+    private
 
     # :nodoc:
     def size_template(size)
@@ -38,15 +27,6 @@ module Opennebula
       resize_template << "VCPU = #{size['occi.compute.cores']}\n"
       resize_template << "CPU = #{size['occi.compute.speed'] * size['occi.compute.cores']}\n"
       resize_template << "MEMORY = #{(size['occi.compute.memory'] * 1024).to_i}"
-    end
-
-    # :nodoc:
-    def handle
-      rc = yield
-      raise rc.message if ::OpenNebula.is_error?(rc)
-      rc
-    rescue => ex
-      raise Errors::JobError, ex.message
     end
   end
 end

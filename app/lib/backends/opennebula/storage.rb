@@ -7,6 +7,7 @@ module Backends
       include Backends::Helpers::AttributesTransferable
       include Backends::Helpers::MixinsAttachable
       include Backends::Helpers::ErbRenderer
+      include Backends::Opennebula::Helpers::DeferrableAction
 
       class << self
         # @see `served_class` on `Entitylike`
@@ -48,15 +49,7 @@ module Backends
 
       # @see `Entitylike`
       def trigger(identifier, action_instance)
-        logger.debug { "#{self.class}: Triggering action on instance #{identifier} with #{action_instance.inspect}" }
-
-        name = action_instance.action.term
-        image = pool_element(:image, identifier)
-        client(Errors::Backend::EntityActionError) do
-          Constants::Storage::ONLINE_ACTIONS[name].call(image, action_instance)
-        end
-
-        Occi::Core::Collection.new
+        deferred_action identifier, action_instance, ::Opennebula::StorageActionJob, 'occi.storage.state'
       end
 
       # @see `Entitylike`
@@ -108,9 +101,10 @@ module Backends
       def enable_actions!(storage)
         return unless storage['occi.storage.state'] == 'online'
         logger.debug do
-          "#{self.class}: Enabling actions #{Constants::Storage::ONLINE_ACTIONS.keys.inspect} on storage##{storage.id}"
+          "#{self.class}: Enabling actions " \
+            "#{::Opennebula::StorageActionJob::ONLINE_ACTIONS.inspect} on storage##{storage.id}"
         end
-        Constants::Storage::ONLINE_ACTIONS.keys.each { |a| storage.enable_action(a) }
+        ::Opennebula::StorageActionJob::ONLINE_ACTIONS.each { |a| storage.enable_action(a) }
       end
 
       # :nodoc:
