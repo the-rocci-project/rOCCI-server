@@ -60,7 +60,7 @@ module ParserAccessible
     end
     enum.each(&:valid!)
     enum
-  rescue ::Occi::Core::Errors::ValidationError => ex
+  rescue ::Occi::Core::Errors::MandatoryArgumentError, ::Occi::Core::Errors::ValidationError => ex
     logger.error "Validation failed: #{ex.class} #{ex.message}"
     raise Errors::ValidationError, ex.message
   end
