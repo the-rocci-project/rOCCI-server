@@ -68,7 +68,7 @@ module Rack
 
     def unwrap_raw(token)
       Base64.strict_decode64(token)
-    rescue => ex
+    rescue StandardError => ex
       logger.error "Failed to unwrap token: #{ex}"
       nil
     end
@@ -80,7 +80,7 @@ module Rack
       logger.debug { "Decrypting token as #{app_config['token_cipher'].inspect}" }
       decipher = decrypt_cipher(app_config['token_cipher'], app_config['token_key'], app_config['token_iv'])
       decipher.update(token) + decipher.final
-    rescue => ex
+    rescue StandardError => ex
       logger.error "Failed to decrypt token: #{ex}"
       nil
     end
@@ -94,7 +94,7 @@ module Rack
       end
 
       { user: parts[0], token: parts[1] }
-    rescue => ex
+    rescue StandardError => ex
       logger.error "Failed to read token: #{ex}"
       nil
     end

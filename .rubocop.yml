@@ -25,10 +25,15 @@ Metrics/BlockLength:
     - 'config/routes.rb'
     - 'Vagrantfile'
     - 'lib/tasks/integration.rake'
+    - 'test/**/*'
 
 Lint/Void:
   Exclude:
     - 'config/initializers/zz_occi_preload.rb'
+
+Style/SignalException:
+  Exclude:
+    - 'lib/tasks/*'
 
 Rails/DynamicFindBy:
   Exclude:

@@ -6,7 +6,7 @@ module Opennebula
     DEFAULT_TIMEOUT = 900
 
     # :nodoc:
-    HELPER_NS = ::Backends::Opennebula::Helpers
+    HELPER_NS = 'Backends::Opennebula::Helpers'.freeze
 
     rescue_from(Errors::JobError) do |ex|
       logger.error "Delayed job failed: #{ex}"
@@ -40,7 +40,7 @@ module Opennebula
       virtual_machine = ::OpenNebula::VirtualMachine.new_with_id(identifier, @client)
 
       if state
-        HELPER_NS::Waiter.wait_until(virtual_machine, state, DEFAULT_TIMEOUT, :state_str)
+        Backends.const_get(HELPER_NS)::Waiter.wait_until(virtual_machine, state, DEFAULT_TIMEOUT, :state_str)
       else
         handle { virtual_machine.info }
       end
@@ -60,7 +60,7 @@ module Opennebula
       rc = yield
       raise rc.message if ::OpenNebula.is_error?(rc)
       rc
-    rescue => ex
+    rescue StandardError => ex
       raise Errors::JobError, ex.message
     end
   end

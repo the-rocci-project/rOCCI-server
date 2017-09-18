@@ -1,1 +1,2 @@
-YARD::Rake::YardocTask.new unless Rails.env.production?
+require 'yard'
+YARD::Rake::YardocTask.new

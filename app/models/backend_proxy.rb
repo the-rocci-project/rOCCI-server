@@ -1,21 +1,4 @@
 class BackendProxy
-  # :nodoc:
-  def self.available_backend_types
-    bds = Hash[available_backend_files.collect { |bd| [bd.to_sym, Backends.const_get(bd.classify)] }]
-    bds.keep_if { |_, bd| (bd.class == Module) && bd.respond_to?(:runnable?) && bd.runnable? }
-    Rails.logger.debug { "Available backend types: #{bds}" }
-    bds
-  end
-
-  # :nodoc:
-  def self.available_backend_files
-    mask = Rails.root.join('app', 'lib', 'backends', '*.rb')
-    Dir.glob(mask).collect { |f| f.split(File::SEPARATOR).last.chomp('.rb') }
-  end
-
-  # Available backends (supported platforms)
-  BACKEND_TYPES = available_backend_types.freeze
-
   # Available backend fragments (supported types of resources)
   BACKEND_RESOURCE_SUBTYPES = %i[
     compute network storage securitygroup ipreservation
@@ -43,59 +26,6 @@ class BackendProxy
 
   # Required version of the backend API
   API_VERSION = '3.0.0'.freeze
-
-  attr_accessor :type, :options, :logger, :server_model, :credentials
-
-  # Make various static methods available on instances
-  DELEG_METHODS = %i[
-    api_version can_be? has? entitylike? resourcelike? linklike?
-    backend_types backend_subtypes
-    backend_resource_subtypes backend_link_subtypes
-    backend_entity_subtypes backend_non_entity_subtypes
-  ].freeze
-  delegate(*DELEG_METHODS, to: :class)
-
-  # Constructs an instance of the backend proxy. This instance can be
-  # used to access various backend fragments on demand.
-  #
-  # @example
-  #    bp = BackendProxy.new(type: :opennebula, options: {}, logger: Rails.logger)
-  #    bp.compute.create(instance)
-  #    bp.storage.identifiers
-  #
-  # @param args [Hash] constructor arguments
-  # @option args [Symbol] :type type of the backend, see `backend_types`
-  # @option args [Hash] :options backend-specific options
-  # @option args [Logger] :logger logger instance
-  # @option args [Occi::Core::Model] :server_model instance of the server model (OCCI)
-  # @option args [Hash] :credentials user credentials for the underlying CMF
-  def initialize(args = {})
-    @type = args.fetch(:type)
-    @options = args.fetch(:options).symbolize_keys
-    @logger = args.fetch(:logger)
-    @server_model = args.fetch(:server_model, nil)
-    @credentials = args.fetch(:credentials)
-
-    flush!
-  end
-
-  # Flushes (or initializes) internal backend fragment cache.
-  def flush!
-    @_cache = {}
-  end
-
-  # Checks type of backend used for this instance.
-  #
-  # @example
-  #    bp.is? :opennebula  # => true
-  #    bp.is? :dummy       # => false
-  #
-  # @param btype [Symbol] backend type
-  # @return [TrueClass] if backend type matches loaded type
-  # @return [FalseClass] if backend type does NOT match loaded type
-  def is?(btype)
-    type == btype
-  end
 
   class << self
     # Returns backend API version required by this proxy class.
@@ -158,7 +88,10 @@ class BackendProxy
 
     # @return [Hash] map of available backend types, `type` => `namespace`
     def backend_types
-      BACKEND_TYPES
+      bds = Hash[available_backend_files.collect { |bd| [bd.to_sym, ::Backends.const_get(bd.classify)] }]
+      bds.keep_if { |_, bd| (bd.class == Module) && bd.respond_to?(:runnable?) && bd.runnable? }
+      Rails.logger.debug { "Available backend types: #{bds}" }
+      bds
     end
 
     # @return [Array] list of available backend subtypes
@@ -185,6 +118,65 @@ class BackendProxy
     def backend_non_entity_subtypes
       BACKEND_NON_ENTITY_SUBTYPES
     end
+
+    # :nodoc:
+    def available_backend_files
+      mask = Rails.root.join('app', 'lib', 'backends', '*.rb')
+      Dir.glob(mask).collect { |f| f.split(File::SEPARATOR).last.chomp('.rb') }
+    end
+  end
+
+  attr_accessor :type, :options, :logger, :server_model, :credentials
+
+  # Make various static methods available on instances
+  DELEG_METHODS = %i[
+    api_version can_be? has? entitylike? resourcelike? linklike?
+    backend_types backend_subtypes
+    backend_resource_subtypes backend_link_subtypes
+    backend_entity_subtypes backend_non_entity_subtypes
+  ].freeze
+  delegate(*DELEG_METHODS, to: :class)
+
+  # Constructs an instance of the backend proxy. This instance can be
+  # used to access various backend fragments on demand.
+  #
+  # @example
+  #    bp = BackendProxy.new(type: :opennebula, options: {}, logger: Rails.logger)
+  #    bp.compute.create(instance)
+  #    bp.storage.identifiers
+  #
+  # @param args [Hash] constructor arguments
+  # @option args [Symbol] :type type of the backend, see `backend_types`
+  # @option args [Hash] :options backend-specific options
+  # @option args [Logger] :logger logger instance
+  # @option args [Occi::Core::Model] :server_model instance of the server model (OCCI)
+  # @option args [Hash] :credentials user credentials for the underlying CMF
+  def initialize(args = {})
+    @type = args.fetch(:type)
+    @options = args.fetch(:options).symbolize_keys
+    @logger = args.fetch(:logger)
+    @server_model = args.fetch(:server_model, nil)
+    @credentials = args.fetch(:credentials)
+
+    flush!
+  end
+
+  # Flushes (or initializes) internal backend fragment cache.
+  def flush!
+    @_cache = {}
+  end
+
+  # Checks type of backend used for this instance.
+  #
+  # @example
+  #    bp.is? :opennebula  # => true
+  #    bp.is? :dummy       # => false
+  #
+  # @param btype [Symbol] backend type
+  # @return [TrueClass] if backend type matches loaded type
+  # @return [FalseClass] if backend type does NOT match loaded type
+  def is?(btype)
+    type == btype
   end
 
   private
