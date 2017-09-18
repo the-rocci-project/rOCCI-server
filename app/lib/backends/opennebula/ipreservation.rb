@@ -8,7 +8,7 @@ module Backends
       include Backends::Helpers::MixinsAttachable
 
       # :nodoc:
-      HELPER_NS = Backends::Opennebula::Helpers
+      HELPER_NS = 'Backends::Opennebula::Helpers'.freeze
 
       class << self
         # @see `served_class` on `Entitylike`
@@ -96,7 +96,7 @@ module Backends
       # :nodoc:
       def single_reservation?(virtual_network)
         return unless virtual_network['PARENT_NETWORK_ID']
-        return unless HELPER_NS::Counter.xml_elements(virtual_network, 'AR_POOL/AR/IP') == 1
+        return unless Backends.const_get(HELPER_NS)::Counter.xml_elements(virtual_network, 'AR_POOL/AR/IP') == 1
 
         virtual_network['AR_POOL/AR/SIZE'].to_i == 1
       end

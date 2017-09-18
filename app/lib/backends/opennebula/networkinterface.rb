@@ -9,7 +9,7 @@ module Backends
       include Backends::Helpers::ErbRenderer
 
       # :nodoc:
-      HELPER_NS = Backends::Opennebula::Helpers
+      HELPER_NS = 'Backends::Opennebula::Helpers'.freeze
 
       class << self
         # @see `served_class` on `Entitylike`
@@ -154,8 +154,8 @@ module Backends
 
       # :nodoc:
       def wait_for_attached_nic!(vm, nics)
-        HELPER_NS::Waiter.wait_until(vm, 'RUNNING') do |nvm|
-          unless HELPER_NS::Counter.xml_elements(nvm, 'TEMPLATE/NIC') > nics
+        Backends.const_get(HELPER_NS)::Waiter.wait_until(vm, 'RUNNING') do |nvm|
+          unless Backends.const_get(HELPER_NS)::Counter.xml_elements(nvm, 'TEMPLATE/NIC') > nics
             logger.error { "Attaching VNET to VM[#{vm['ID']}] failed: #{vm['USER_TEMPLATE/ERROR']}" }
             raise Errors::Backend::RemoteError, 'Could not attach network to compute'
           end
