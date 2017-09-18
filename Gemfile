@@ -19,10 +19,10 @@ gem 'thor', '~> 0.20'
 group :development, :test do
   gem 'byebug'
   gem 'listen', '>= 3.0.5', '< 3.2'
-  gem 'mixlib-shellout'
-  gem 'rails_best_practices'
+  gem 'mixlib-shellout', require: false
+  gem 'rails_best_practices', require: false
   gem 'rubocop', require: false
-  gem 'yard'
+  gem 'yard', require: false
 end
 
 # Include external bundles

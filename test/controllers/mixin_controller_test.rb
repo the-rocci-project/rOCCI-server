@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class MixinControllerTest < ActionDispatch::IntegrationTest
-  test "should not create mixin" do
+  test 'should not create mixin' do
     post '/-/',
          headers: {
            HTTP_X_AUTH_TOKEN: HelpfulTestConstants::TOKEN,
@@ -11,7 +11,7 @@ class MixinControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_implemented
   end
 
-  test "should not delete mixin" do
+  test 'should not delete mixin' do
     delete '/-/',
            headers: {
              HTTP_X_AUTH_TOKEN: HelpfulTestConstants::TOKEN,

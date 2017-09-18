@@ -50,4 +50,7 @@ Rails.application.configure do
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
+
+  # Make sure ForceSSL is not ON in tests
+  config.force_ssl = false
 end

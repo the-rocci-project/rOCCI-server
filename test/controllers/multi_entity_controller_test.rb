@@ -12,20 +12,20 @@ class MultiEntityControllerTest < ActionDispatch::IntegrationTest
 
     test "should delete collection of #{entity}" do
       delete "/#{entity}/",
-          headers: {
-            HTTP_X_AUTH_TOKEN: HelpfulTestConstants::TOKEN,
-            HTTP_ACCEPT: HelpfulTestConstants::DEFAULT_FORMAT
-          }
+             headers: {
+               HTTP_X_AUTH_TOKEN: HelpfulTestConstants::TOKEN,
+               HTTP_ACCEPT: HelpfulTestConstants::DEFAULT_FORMAT
+             }
       assert_response :success
     end
 
     HelpfulTestConstants::FORMATS.each do |response_format|
       test "should not create abstract #{entity} from #{response_format}" do
         post "/#{entity}/",
-            headers: {
-              HTTP_X_AUTH_TOKEN: HelpfulTestConstants::TOKEN,
-              HTTP_ACCEPT: response_format, CONTENT_TYPE: response_format
-            }
+             headers: {
+               HTTP_X_AUTH_TOKEN: HelpfulTestConstants::TOKEN,
+               HTTP_ACCEPT: response_format, CONTENT_TYPE: response_format
+             }
         assert_response :not_implemented
       end
     end

@@ -25,6 +25,7 @@ Metrics/BlockLength:
     - 'config/routes.rb'
     - 'Vagrantfile'
     - 'lib/tasks/integration.rake'
+    - 'test/**/*'
 
 Lint/Void:
   Exclude:
