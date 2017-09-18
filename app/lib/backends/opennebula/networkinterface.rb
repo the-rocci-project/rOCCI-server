@@ -164,7 +164,7 @@ module Backends
 
       # :nodoc:
       def whereami
-        File.expand_path(File.dirname(__FILE__))
+        __dir__
       end
     end
   end

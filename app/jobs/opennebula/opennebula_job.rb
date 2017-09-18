@@ -60,7 +60,7 @@ module Opennebula
       rc = yield
       raise rc.message if ::OpenNebula.is_error?(rc)
       rc
-    rescue => ex
+    rescue StandardError => ex
       raise Errors::JobError, ex.message
     end
   end
