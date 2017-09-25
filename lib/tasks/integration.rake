@@ -13,6 +13,7 @@ end
 # :nodoc:
 def runcmd(executable, *args)
   cmd = Mixlib::ShellOut.new(executable, *args)
+  cmd.timeout = 900 # default is 600 (sec)
 
   cmd.live_stdout = STDOUT
   cmd.live_stderr = STDERR
