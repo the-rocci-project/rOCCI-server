@@ -28,8 +28,8 @@ module Backends
       RES_TPL_ATTRS = %w[
         occi.compute.cores occi.compute.memory occi.compute.architecture
         occi.compute.ephemeral_storage.size occi.compute.speed
-        eu.egi.fedcloud.compute.gpu.count eu.egi.fedcloud.compute.gpu.vendor
-        eu.egi.fedcloud.compute.gpu.class eu.egi.fedcloud.compute.gpu.device
+        eu.egi.fedcloud.compute.pci.count eu.egi.fedcloud.compute.pci.vendor
+        eu.egi.fedcloud.compute.pci.class eu.egi.fedcloud.compute.pci.device
       ].freeze
       ALLOWED_UNAMES = %w[oneadmin].freeze
 
