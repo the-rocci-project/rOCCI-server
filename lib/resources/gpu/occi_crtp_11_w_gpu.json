@@ -1,0 +1,68 @@
+[
+  {
+    "identifier": "http://schemas.fedcloud.egi.eu/occi/infrastructure/compute/template/1.1#small_gpu",
+    "title": "CRTP/1.1 Resource Template - Small with GPU",
+    "occi.compute.cores": 1,
+    "occi.compute.speed": 1.0,
+    "occi.compute.memory": 1.0,
+    "occi.compute.ephemeral_storage.size": 10.0,
+    "occi.compute.architecture": "x64",
+    "eu.egi.fedcloud.compute.pci.count": "1",
+    "eu.egi.fedcloud.compute.pci.class": "0302"
+  },
+  {
+    "identifier": "http://schemas.fedcloud.egi.eu/occi/infrastructure/compute/template/1.1#medium_gpu",
+    "title": "CRTP/1.1 Resource Template - Medium with GPU",
+    "occi.compute.cores": 2,
+    "occi.compute.speed": 1.0,
+    "occi.compute.memory": 2.0,
+    "occi.compute.ephemeral_storage.size": 20.0,
+    "occi.compute.architecture": "x64",
+    "eu.egi.fedcloud.compute.pci.count": "1",
+    "eu.egi.fedcloud.compute.pci.class": "0302"
+  },
+  {
+    "identifier": "http://schemas.fedcloud.egi.eu/occi/infrastructure/compute/template/1.1#large_gpu",
+    "title": "CRTP/1.1 Resource Template - Large with GPU",
+    "occi.compute.cores": 4,
+    "occi.compute.speed": 1.0,
+    "occi.compute.memory": 4.0,
+    "occi.compute.ephemeral_storage.size": 40.0,
+    "occi.compute.architecture": "x64",
+    "eu.egi.fedcloud.compute.pci.count": "1",
+    "eu.egi.fedcloud.compute.pci.class": "0302"
+  },
+  {
+    "identifier": "http://schemas.fedcloud.egi.eu/occi/infrastructure/compute/template/1.1#mem_small_gpu",
+    "title": "CRTP/1.1 Resource Template - Small with 4x Memory and GPU",
+    "occi.compute.cores": 1,
+    "occi.compute.speed": 1.0,
+    "occi.compute.memory": 4.0,
+    "occi.compute.ephemeral_storage.size": 10.0,
+    "occi.compute.architecture": "x64",
+    "eu.egi.fedcloud.compute.pci.count": "1",
+    "eu.egi.fedcloud.compute.pci.class": "0302"
+  },
+  {
+    "identifier": "http://schemas.fedcloud.egi.eu/occi/infrastructure/compute/template/1.1#mem_medium_gpu",
+    "title": "CRTP/1.1 Resource Template - Medium with 4x Memory and GPU",
+    "occi.compute.cores": 2,
+    "occi.compute.speed": 1.0,
+    "occi.compute.memory": 8.0,
+    "occi.compute.ephemeral_storage.size": 20.0,
+    "occi.compute.architecture": "x64",
+    "eu.egi.fedcloud.compute.pci.count": "1",
+    "eu.egi.fedcloud.compute.pci.class": "0302"
+  },
+  {
+    "identifier": "http://schemas.fedcloud.egi.eu/occi/infrastructure/compute/template/1.1#mem_large_gpu",
+    "title": "CRTP/1.1 Resource Template - Large with 4x Memory and GPU",
+    "occi.compute.cores": 4,
+    "occi.compute.speed": 1.0,
+    "occi.compute.memory": 16.0,
+    "occi.compute.ephemeral_storage.size": 40.0,
+    "occi.compute.architecture": "x64",
+    "eu.egi.fedcloud.compute.pci.count": "1",
+    "eu.egi.fedcloud.compute.pci.class": "0302"
+  }
+]
