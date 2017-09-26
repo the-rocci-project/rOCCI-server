@@ -49,12 +49,12 @@ module Backends
           'occi.compute.ephemeral_storage.size' => lambda do |vm, val|
             (vm['TEMPLATE/DISK[1]/SIZE'].to_f / 1024) <= val.to_f
           end,
-          'eu.egi.fedcloud.compute.gpu.count' => lambda do |vm, val|
+          'eu.egi.fedcloud.compute.pci.count' => lambda do |vm, val|
             Backends::Opennebula::Helpers::Counter.xml_elements(vm, 'TEMPLATE/PCI') == val.to_i
           end,
-          'eu.egi.fedcloud.compute.gpu.vendor' => ->(vm, val) { vm['TEMPLATE/PCI[1]/VENDOR'] == val },
-          'eu.egi.fedcloud.compute.gpu.class' => ->(vm, val) { vm['TEMPLATE/PCI[1]/CLASS'] == val },
-          'eu.egi.fedcloud.compute.gpu.device' => ->(vm, val) { vm['TEMPLATE/PCI[1]/DEVICE'] == val }
+          'eu.egi.fedcloud.compute.pci.vendor' => ->(vm, val) { vm['TEMPLATE/PCI[1]/VENDOR'] == val },
+          'eu.egi.fedcloud.compute.pci.class' => ->(vm, val) { vm['TEMPLATE/PCI[1]/CLASS'] == val },
+          'eu.egi.fedcloud.compute.pci.device' => ->(vm, val) { vm['TEMPLATE/PCI[1]/DEVICE'] == val }
         }.freeze
 
         # Mixins to add for contextualization attributes

@@ -107,7 +107,7 @@ module Backends
         %i[set_context! set_size! set_security_groups! set_cluster!].each { |mtd| send(mtd, template, compute) }
 
         template = template.template_str
-        %i[add_custom! add_gpu! add_nics! add_disks!].each { |mtd| send(mtd, template, compute) }
+        %i[add_custom! add_pci! add_nics! add_disks!].each { |mtd| send(mtd, template, compute) }
 
         template
       end

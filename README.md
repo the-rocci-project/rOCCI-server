@@ -20,7 +20,7 @@ git clone https://github.com/the-rocci-project/rOCCI-server.git
 cd rOCCI-server
 bundle install --deployment --without development test
 
-bundle exec bin/oneresources create --endpoint http://one.example.org:2633/RPC2 # --username USER --password PASSWD
+bundle exec bin/oneresource create --endpoint http://one.example.org:2633/RPC2 # --username USER --password PASSWD
 
 export RAILS_ENV=production
 export HOST=0.0.0.0

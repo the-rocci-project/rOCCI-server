@@ -60,18 +60,18 @@ module Backends
         end
 
         # :nodoc:
-        def add_gpu!(template_str, compute)
-          return unless compute['eu.egi.fedcloud.compute.gpu.count']
+        def add_pci!(template_str, compute)
+          return unless compute['eu.egi.fedcloud.compute.pci.count']
 
-          gpu = {
-            vendor: compute['eu.egi.fedcloud.compute.gpu.vendor'],
-            klass: compute['eu.egi.fedcloud.compute.gpu.class'],
-            device: compute['eu.egi.fedcloud.compute.gpu.device']
+          pci = {
+            vendor: compute['eu.egi.fedcloud.compute.pci.vendor'],
+            klass: compute['eu.egi.fedcloud.compute.pci.class'],
+            device: compute['eu.egi.fedcloud.compute.pci.device']
           }
           data = { instances: [] }
-          compute['eu.egi.fedcloud.compute.gpu.count'].times { data[:instances] << gpu }
+          compute['eu.egi.fedcloud.compute.pci.count'].times { data[:instances] << pci }
 
-          logger.debug { "#{self.class}: Adding GPU(s) #{data[:instances].first.inspect}" }
+          logger.debug { "#{self.class}: Adding PCI(s) #{data[:instances].first.inspect}" }
           add_erb! template_str, data, 'compute_pci.erb'
         end
 

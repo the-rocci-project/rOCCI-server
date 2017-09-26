@@ -95,7 +95,7 @@ Vagrant.configure('2') do |config|
         export ROCCI_SERVER_BACKEND=opennebula
         export ROCCI_SERVER_OPENNEBULA_ENDPOINT=http://#{ONE_ADDR}:2633/RPC2
 
-        rvm 2.4.1 do bundle exec bin/oneresources create --endpoint $ROCCI_SERVER_OPENNEBULA_ENDPOINT
+        rvm 2.4.1 do bundle exec bin/oneresource create --endpoint $ROCCI_SERVER_OPENNEBULA_ENDPOINT
       fi
 
       export RAILS_ENV=production

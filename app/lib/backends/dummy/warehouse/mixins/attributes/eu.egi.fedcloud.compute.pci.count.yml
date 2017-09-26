@@ -3,5 +3,5 @@ type: !ruby/class Integer
 required: true
 mutable: false
 default: ~
-description: Number of GPU devices.
+description: Number of PCI devices.
 pattern: ~
