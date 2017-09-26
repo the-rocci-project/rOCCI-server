@@ -1,0 +1,33 @@
+version: 2
+jobs:
+  build:
+    branches:
+      ignore:
+        - /.*/
+    docker:
+      - image: docker:stable
+    working_directory: /root/rOCCI-server
+    steps:
+      - run: apk add --no-cache git openssh
+      - checkout
+      - setup_remote_docker
+      - run: |
+          TAG=${CIRCLE_TAG#v}
+          BRANCH=${TAG/%.*/.x}
+          VERSION=${TAG}
+          LATEST=$(git tag --sort=-refname | head -n 1)
+
+          docker login -u $DOCKER_USER -p $DOCKER_PASS
+
+          docker build --build-arg branch=$BRANCH --build-arg version="$VERSION" -t therocciproject/rocci-server:$TAG .
+          docker push therocciproject/rocci-server:$TAG
+
+          if [ "$LATEST" == "$CIRCLE_TAG" ]; then
+            docker tag therocciproject/rocci-server:$TAG therocciproject/rocci-server:latest
+            docker push therocciproject/rocci-server:latest
+          fi
+deployment:
+  fake_deploy_for_cci2:
+    tag: /v.*/
+    commands:
+      - echo "make tags run in 2.0"
