@@ -10,18 +10,22 @@ module Opennebula
 
     rescue_from(Errors::JobError) do |ex|
       logger.error "Delayed job failed: #{ex}"
+      job_cleanup!
     end
 
     rescue_from(Errors::Backend::EntityTimeoutError) do |_ex|
       logger.error "Timed out while waiting for job completion [#{DEFAULT_TIMEOUT}s]"
+      job_cleanup!
     end
 
     rescue_from(Errors::Backend::EntityRetrievalError) do |ex|
       logger.error "Failed to get instance state when waiting: #{ex}"
+      job_cleanup!
     end
 
     rescue_from(Errors::Backend::RemoteError) do |ex|
       logger.fatal "Failed during transition: #{ex}"
+      job_cleanup!
     end
 
     # Performs job in OpenNebula with given arguments.
@@ -33,26 +37,47 @@ module Opennebula
       @client = ::OpenNebula::Client.new(secret, endpoint)
     end
 
+    protected
+
+    # :nodoc:
+    def job_cleanup!; end
+
     private
 
     # :nodoc:
     def virtual_machine(identifier, state = nil)
-      virtual_machine = ::OpenNebula::VirtualMachine.new_with_id(identifier, @client)
-
-      if state
-        Backends.const_get(HELPER_NS)::Waiter.wait_until(virtual_machine, state, DEFAULT_TIMEOUT, :state_str)
-      else
-        handle { virtual_machine.info }
-      end
-
+      virtual_machine = oneject('virtual_machine', identifier)
+      Backends.const_get(HELPER_NS)::Waiter.wait_until(virtual_machine, state, DEFAULT_TIMEOUT, :state_str) if state
       virtual_machine
     end
 
     # :nodoc:
     def image(identifier, _state = nil)
-      image = ::OpenNebula::Image.new_with_id(identifier, @client)
-      handle { image.info }
-      image
+      oneject 'image', identifier
+    end
+
+    # :nodoc:
+    def image_by_name(name, _state = nil)
+      oneject_by_name 'image', name
+    end
+
+    # :nodoc:
+    def template(identifier, _state = nil)
+      oneject 'template', identifier
+    end
+
+    # :nodoc:
+    def oneject(type, identifier)
+      obj = ::OpenNebula.const_get(type.classify).new_with_id(identifier, @client)
+      handle { obj.info }
+      obj
+    end
+
+    # :nodoc:
+    def oneject_by_name(type, name)
+      obj = ::OpenNebula.const_get("#{type.classify}Pool").new(@client)
+      handle { obj.info_mine }
+      obj.detect { |elm| elm['NAME'] == name }
     end
 
     # :nodoc:
