@@ -62,7 +62,7 @@ module Backends
       def create(instance)
         logger.debug { "#{self.class}: Creating instance from #{instance.inspect}" }
         vm = pool_element(:virtual_machine, instance.source_id, :info)
-        disks = Backends::Opennebula::Helpers::Counter.xml_elements(vm, 'TEMPLATE/DISK')
+        disks = vm.count_xpath('TEMPLATE/DISK')
 
         client(Errors::Backend::EntityCreateError) { vm.disk_attach disk_from(instance) }
         wait_for_attached_disk! vm, disks
@@ -127,7 +127,7 @@ module Backends
       # :nodoc:
       def wait_for_attached_disk!(vm, disks)
         Backends.const_get(HELPER_NS)::Waiter.wait_until(vm, 'RUNNING', Constants::Storagelink::ATTACH_TIMEOUT) do |nvm|
-          unless Backends.const_get(HELPER_NS)::Counter.xml_elements(nvm, 'TEMPLATE/DISK') > disks
+          unless nvm.count_xpath('TEMPLATE/DISK') > disks
             logger.error "Attaching IMAGE to VM[#{vm['ID']}] failed: #{vm['USER_TEMPLATE/ERROR']}"
             raise Errors::Backend::RemoteError, 'Could not attach storage to compute'
           end
