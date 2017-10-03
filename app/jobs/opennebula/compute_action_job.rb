@@ -76,7 +76,7 @@ module Opennebula
 
     # :nodoc:
     def purge_disks_attributes!(template)
-      template.each_xpath('TEMPLATE/DISK') do |disk|
+      template.each('TEMPLATE/DISK') do |disk|
         if disk['IMAGE_ID'].present?
           purge_attributes! image(disk['IMAGE_ID'])
         elsif disk['IMAGE'].present?
