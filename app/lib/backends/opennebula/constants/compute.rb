@@ -22,7 +22,8 @@ module Backends
         ATTRIBUTES_INFRA = {
           'occi.compute.state' => lambda do |vm|
             return 'waiting' if vm.lcm_state_str.include?('HOTPLUG')
-            return 'error' if vm.lcm_state_str.include?('FAILURE')
+            return 'waiting' if %w[PENDING HOLD CLONING].include?(vm.state_str)
+            return 'error' if vm.lcm_state_str.include?('FAILURE') || vm.state_str.include?('FAILURE')
             STATE_MAP[vm.lcm_state_str] || 'inactive'
           end,
           'occi.compute.userdata' => lambda do |vm|
