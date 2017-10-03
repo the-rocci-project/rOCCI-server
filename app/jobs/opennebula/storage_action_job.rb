@@ -11,7 +11,10 @@ module Opennebula
 
     # :nodoc:
     def action_backup(image, _attributes)
-      image.clone "storage-#{image['ID']}-#{Time.now.utc.to_i}"
+      new_name = "storage-#{image['ID']}-#{Time.now.utc.to_i}"
+
+      logger.debug { "Cloning image #{image['ID']} into #{new_name.inspect}" }
+      image.clone
     end
   end
 end

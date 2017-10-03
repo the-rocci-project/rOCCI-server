@@ -15,6 +15,7 @@ module Opennebula
       vm = virtual_machine(args.fetch(:identifier), TARGET_STATE)
       template = size_template(args.fetch(:size))
 
+      logger.debug { "Resizing virtual machine with ID #{vm['ID']} to #{template.split.join(' & ')}" }
       handle { vm.resize(template, true) }
       handle { vm.resume }
     end

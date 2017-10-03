@@ -14,10 +14,19 @@ module Opennebula
 
       amtd = "action_#{args.fetch(:action_name)}".freeze
       raise 'Unsupported action' unless self.class::ACTIONS.include?(args.fetch(:action_name))
+
+      logger.debug { "Calling #{amtd} for action #{args.fetch(:action_name).inspect} on #{self.class::ELM_NAME}" }
       obj = send(self.class::ELM_NAME, args.fetch(:identifier), args.fetch(:required_state, nil))
 
-      send "#{amtd}_pre", obj, args.fetch(:action_attributes) if respond_to?("#{amtd}_pre")
-      rc = handle { send amtd, obj, args.fetch(:action_attributes) }
+      run_primitives! amtd, obj, args.fetch(:action_attributes)
+    end
+
+    private
+
+    # :nodoc:
+    def run_primitives!(amtd, obj, action_attributes)
+      send "#{amtd}_pre", obj, action_attributes if respond_to?("#{amtd}_pre")
+      rc = handle { send amtd, obj, action_attributes }
       send "#{amtd}_post", rc if respond_to?("#{amtd}_post")
     end
   end

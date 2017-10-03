@@ -68,6 +68,7 @@ module Opennebula
 
     # :nodoc:
     def oneject(type, identifier)
+      logger.debug { "Getting #{type} with ID #{identifier.inspect}" }
       obj = ::OpenNebula.const_get(type.classify).new_with_id(identifier, @client)
       handle { obj.info }
       obj
@@ -75,6 +76,7 @@ module Opennebula
 
     # :nodoc:
     def oneject_by_name(type, name)
+      logger.debug { "Getting #{type} by name #{name.inspect}" }
       obj = ::OpenNebula.const_get("#{type.classify}Pool").new(@client)
       handle { obj.info_mine }
       obj.detect { |elm| elm['NAME'] == name }
