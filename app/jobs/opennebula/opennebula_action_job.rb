@@ -25,9 +25,9 @@ module Opennebula
 
     # :nodoc:
     def run_primitives!(amtd, obj, action_attributes)
-      send "#{amtd}_pre", obj, action_attributes if respond_to?("#{amtd}_pre")
+      send "#{amtd}_pre", obj, action_attributes if respond_to?("#{amtd}_pre", true)
       rc = handle { send amtd, obj, action_attributes }
-      send "#{amtd}_post", rc if respond_to?("#{amtd}_post")
+      send "#{amtd}_post", rc if respond_to?("#{amtd}_post", true)
     end
   end
 end
