@@ -62,7 +62,7 @@ module Backends
       def create(instance)
         logger.debug { "#{self.class}: Creating instance from #{instance.inspect}" }
         vm = pool_element(:virtual_machine, instance.source_id, :info)
-        nics = Backends::Opennebula::Helpers::Counter.xml_elements(vm, 'TEMPLATE/NIC')
+        nics = vm.count_xpath('TEMPLATE/NIC')
 
         client(Errors::Backend::EntityCreateError) { vm.nic_attach nic_from(instance, vm) }
         wait_for_attached_nic! vm, nics
@@ -155,7 +155,7 @@ module Backends
       # :nodoc:
       def wait_for_attached_nic!(vm, nics)
         Backends.const_get(HELPER_NS)::Waiter.wait_until(vm, 'RUNNING') do |nvm|
-          unless Backends.const_get(HELPER_NS)::Counter.xml_elements(nvm, 'TEMPLATE/NIC') > nics
+          unless nvm.count_xpath('TEMPLATE/NIC') > nics
             logger.error { "Attaching VNET to VM[#{vm['ID']}] failed: #{vm['USER_TEMPLATE/ERROR']}" }
             raise Errors::Backend::RemoteError, 'Could not attach network to compute'
           end

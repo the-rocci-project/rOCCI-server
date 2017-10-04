@@ -54,7 +54,7 @@ module OneResources
     desc 'list', 'Lists all existing resource documents'
     def list
       initialize_resource_document_pool
-      @resource_document_pool.each { |rd| puts rd['NAME'] }
+      @resource_document_pool.each { |rd| puts "#{rd['NAME']}\t#{rd['TEMPLATE/BODY']}" }
     end
 
     private
@@ -84,7 +84,7 @@ module OneResources
 
     def for_dir(res_dir, &block)
       raise 'Block is a required argument' unless block_given?
-      Dir[res_dir.join('*.json')].each do |json_file|
+      Dir[File.join(res_dir, '*.json')].each do |json_file|
         JSON.parse(File.read(json_file)).each(&block)
       end
     end

@@ -22,7 +22,8 @@ module Backends
         ATTRIBUTES_INFRA = {
           'occi.compute.state' => lambda do |vm|
             return 'waiting' if vm.lcm_state_str.include?('HOTPLUG')
-            return 'error' if vm.lcm_state_str.include?('FAILURE')
+            return 'waiting' if %w[PENDING HOLD CLONING].include?(vm.state_str)
+            return 'error' if vm.lcm_state_str.include?('FAILURE') || vm.state_str.include?('FAILURE')
             STATE_MAP[vm.lcm_state_str] || 'inactive'
           end,
           'occi.compute.userdata' => lambda do |vm|
@@ -50,7 +51,7 @@ module Backends
             (vm['TEMPLATE/DISK[1]/SIZE'].to_f / 1024) <= val.to_f
           end,
           'eu.egi.fedcloud.compute.pci.count' => lambda do |vm, val|
-            Backends::Opennebula::Helpers::Counter.xml_elements(vm, 'TEMPLATE/PCI') == val.to_i
+            vm.count_xpath('TEMPLATE/PCI') == val.to_i
           end,
           'eu.egi.fedcloud.compute.pci.vendor' => ->(vm, val) { vm['TEMPLATE/PCI[1]/VENDOR'] == val },
           'eu.egi.fedcloud.compute.pci.class' => ->(vm, val) { vm['TEMPLATE/PCI[1]/CLASS'] == val },

@@ -16,6 +16,16 @@ module OpenNebula
       add_element xpath, key => value
     end
 
+    # Counts XML elements matching XPATH.
+    #
+    # @param xpath [String] XPATH of element to count
+    # @return [Fixnum] numbers of elements matching given XPATH
+    def count_xpath(xpath)
+      count = 0
+      each_xpath(xpath) { count += 1 }
+      count
+    end
+
     private
 
     # Splits `xpath` into parts by separating the last element.
