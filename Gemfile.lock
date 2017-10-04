@@ -157,7 +157,7 @@ GEM
       rainbow (>= 2.2.2, < 3.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (~> 1.0, >= 1.0.1)
-    ruby-progressbar (1.8.3)
+    ruby-progressbar (1.9.0)
     ruby_dep (1.5.0)
     sexp_processor (4.10.0)
     sprockets (3.7.1)
