@@ -12,10 +12,13 @@ jobs:
       - checkout
       - setup_remote_docker
       - run: |
+          git config --global --replace-all versionsort.prereleasesuffix ".alpha"
+          git config --global --add versionsort.prereleasesuffix ".beta"
+      - run: |
           TAG=${CIRCLE_TAG#v}
           BRANCH=${TAG/%.*/.x}
           VERSION=${TAG}
-          LATEST=$(git tag --sort=-refname | head -n 1)
+          LATEST=$(git tag --sort=-version:refname | head -n 1)
 
           docker login -u $DOCKER_USER -p $DOCKER_PASS
 
