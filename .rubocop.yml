@@ -26,6 +26,7 @@ Metrics/BlockLength:
     - 'Vagrantfile'
     - 'lib/tasks/integration.rake'
     - 'test/**/*'
+    - 'config/environments/*'
 
 Lint/Void:
   Exclude:

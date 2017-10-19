@@ -91,6 +91,13 @@ Rails.application.configure do
     config.logger    = ActiveSupport::TaggedLogging.new(logger)
   end
 
+  if ENV['RAILS_LOG_TO_SYSLOG'].present?
+    require 'syslog/logger'
+    config.logger = ActiveSupport::TaggedLogging.new(Syslog::Logger.new('rOCCI-server'))
+    config.logger.level = ActiveSupport::Logger.const_get(config.rocci_server['log_level'].upcase)
+    config.logger.warn 'Asking for STDOUT and SYSLOG -> using only SYSLOG' if ENV['RAILS_LOG_TO_STDOUT'].present?
+  end
+
   # Do not dump schema after migrations.
   # config.active_record.dump_schema_after_migration = false
 end
