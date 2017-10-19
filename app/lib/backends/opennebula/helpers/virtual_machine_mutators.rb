@@ -14,9 +14,15 @@ module Backends
 
         # :nodoc:
         def set_context!(template, compute)
-          template.modify_element 'TEMPLATE/CONTEXT/SSH_PUBLIC_KEY', compute['occi.credentials.ssh.publickey'] || ''
+          template.modify_element 'TEMPLATE/CONTEXT/SSH_PUBLIC_KEY',
+                                  compute['occi.credentials.ssh.publickey'] \
+                                  || compute['org.openstack.credentials.publickey.data'] \
+                                  ||''
           template.modify_element 'TEMPLATE/CONTEXT/USERDATA_ENCODING', USERDATA_ENCODING
-          template.modify_element 'TEMPLATE/CONTEXT/USER_DATA', compute['occi.compute.userdata'] || ''
+          template.modify_element 'TEMPLATE/CONTEXT/USER_DATA',
+                                  compute['occi.compute.userdata'] \
+                                  || compute['org.openstack.compute.user_data'] \
+                                  || ''
         end
 
         # :nodoc:
