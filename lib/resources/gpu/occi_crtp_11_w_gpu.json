@@ -7,7 +7,7 @@
     "occi.compute.memory": 1.0,
     "occi.compute.ephemeral_storage.size": 10.0,
     "occi.compute.architecture": "x64",
-    "eu.egi.fedcloud.compute.pci.count": "1",
+    "eu.egi.fedcloud.compute.pci.count": 1,
     "eu.egi.fedcloud.compute.pci.class": "0302"
   },
   {
@@ -18,7 +18,7 @@
     "occi.compute.memory": 2.0,
     "occi.compute.ephemeral_storage.size": 20.0,
     "occi.compute.architecture": "x64",
-    "eu.egi.fedcloud.compute.pci.count": "1",
+    "eu.egi.fedcloud.compute.pci.count": 1,
     "eu.egi.fedcloud.compute.pci.class": "0302"
   },
   {
@@ -29,7 +29,7 @@
     "occi.compute.memory": 4.0,
     "occi.compute.ephemeral_storage.size": 40.0,
     "occi.compute.architecture": "x64",
-    "eu.egi.fedcloud.compute.pci.count": "1",
+    "eu.egi.fedcloud.compute.pci.count": 1,
     "eu.egi.fedcloud.compute.pci.class": "0302"
   },
   {
@@ -40,7 +40,7 @@
     "occi.compute.memory": 4.0,
     "occi.compute.ephemeral_storage.size": 10.0,
     "occi.compute.architecture": "x64",
-    "eu.egi.fedcloud.compute.pci.count": "1",
+    "eu.egi.fedcloud.compute.pci.count": 1,
     "eu.egi.fedcloud.compute.pci.class": "0302"
   },
   {
@@ -51,7 +51,7 @@
     "occi.compute.memory": 8.0,
     "occi.compute.ephemeral_storage.size": 20.0,
     "occi.compute.architecture": "x64",
-    "eu.egi.fedcloud.compute.pci.count": "1",
+    "eu.egi.fedcloud.compute.pci.count": 1,
     "eu.egi.fedcloud.compute.pci.class": "0302"
   },
   {
@@ -62,7 +62,7 @@
     "occi.compute.memory": 16.0,
     "occi.compute.ephemeral_storage.size": 40.0,
     "occi.compute.architecture": "x64",
-    "eu.egi.fedcloud.compute.pci.count": "1",
+    "eu.egi.fedcloud.compute.pci.count": 1,
     "eu.egi.fedcloud.compute.pci.class": "0302"
   }
 ]
