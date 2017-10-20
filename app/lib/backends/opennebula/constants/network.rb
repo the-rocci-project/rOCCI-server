@@ -18,7 +18,10 @@ module Backends
         ATTRIBUTES_INFRA = {
           'occi.network.state' => ->(_vnet) { 'active' },
           'occi.network.vlan' => VLAN_LAMBDA,
-          'occi.network.label' => ->(vnet) { VLAN_LAMBDA.call(vnet).to_s },
+          'occi.network.label' => lambda do |vnet|
+            lbl = VLAN_LAMBDA.call(vnet)
+            lbl ? lbl.to_s : nil
+          end,
           'occi.network.address' => lambda do |vnet|
             return unless vnet['TEMPLATE/NETWORK_ADDRESS'].present? && vnet['TEMPLATE/NETWORK_MASK'].present?
             IPAddr.new "#{vnet['TEMPLATE/NETWORK_ADDRESS']}/#{vnet['TEMPLATE/NETWORK_MASK']}"
