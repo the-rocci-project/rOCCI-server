@@ -17,7 +17,7 @@ module Backends
         # @param state [String] target state (LCM state by default)
         # @param timeout [Fixnum] wait for given number of seconds
         # @param type [Symbol] type of the state
-        def wait_until(virtual_machine, state, timeout = 60, type = :lcm_state_str)
+        def self.wait_until(virtual_machine, state, timeout = 60, type = :lcm_state_str)
           Timeout.timeout(timeout, Errors::Backend::EntityTimeoutError) do
             loop do
               sleep WAITER_STEP
@@ -30,7 +30,7 @@ module Backends
         end
 
         # :nodoc:
-        def early_fail!(virtual_machine)
+        def self.early_fail!(virtual_machine)
           return unless virtual_machine.lcm_state_str.include?(EARLY_EXIT_ON)
           raise Errors::Backend::RemoteError, "VM #{virtual_machine['ID']} is stuck in state #{EARLY_EXIT_ON}"
         end
