@@ -1,7 +1,7 @@
 module ROCCIServer
   MAJOR_VERSION = 2                # Major update constant
   MINOR_VERSION = 0                # Minor update constant
-  PATCH_VERSION = 2                # Patch/Fix version constant
+  PATCH_VERSION = 3                # Patch/Fix version constant
   STAGE_VERSION = nil              # use `nil` for production releases
 
   unless defined?(::ROCCIServer::VERSION)
