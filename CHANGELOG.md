@@ -1,4 +1,10 @@
 
+2.0.4 / 2017-10-23
+==================
+
+  * Fixed broken linking (`Waiter` issues)
+  * Fixed PCI/GPU resource templates and ERB
+
 2.0.3 / 2017-10-20
 ==================
 
