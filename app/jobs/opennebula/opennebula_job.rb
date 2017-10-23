@@ -5,9 +5,6 @@ module Opennebula
     # Default timeout in seconds
     DEFAULT_TIMEOUT = 900
 
-    # :nodoc:
-    HELPER_NS = 'Backends::Opennebula::Helpers'.freeze
-
     rescue_from(Errors::JobError) do |ex|
       logger.error "Delayed job failed: #{ex}"
       job_cleanup!
@@ -47,7 +44,13 @@ module Opennebula
     # :nodoc:
     def virtual_machine(identifier, state = nil)
       virtual_machine = oneject('virtual_machine', identifier)
-      Backends.const_get(HELPER_NS)::Waiter.wait_until(virtual_machine, state, DEFAULT_TIMEOUT, :state_str) if state
+      if state
+        refresher = ->(obj) { handle { obj.info } }
+        waiter = Backends::Opennebula::Helpers::Waiter.new(
+          waitee: virtual_machine, logger: logger, timeout: DEFAULT_TIMEOUT, refresher: refresher
+        )
+        waiter.wait_until [{ state_str: state }]
+      end
       virtual_machine
     end
 

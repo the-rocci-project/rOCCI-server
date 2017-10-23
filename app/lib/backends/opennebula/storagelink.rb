@@ -8,9 +8,6 @@ module Backends
       include Backends::Helpers::MixinsAttachable
       include Backends::Helpers::ErbRenderer
 
-      # :nodoc:
-      HELPER_NS = 'Backends::Opennebula::Helpers'.freeze
-
       class << self
         # @see `served_class` on `Entitylike`
         def served_class
@@ -126,7 +123,15 @@ module Backends
 
       # :nodoc:
       def wait_for_attached_disk!(vm, disks)
-        Backends.const_get(HELPER_NS)::Waiter.wait_until(vm, 'RUNNING', Constants::Storagelink::ATTACH_TIMEOUT) do |nvm|
+        refresher = ->(obj) { client(Errors::Backend::EntityRetrievalError) { obj.info } }
+        waiter = Backends::Opennebula::Helpers::Waiter.new(
+          waitee: vm, logger: logger, timeout: Constants::Storagelink::ATTACH_TIMEOUT, refresher: refresher
+        )
+        states = [
+          { state_str: 'ACTIVE', lcm_state_str: 'RUNNING' }, { state_str: 'POWEROFF' }
+        ]
+
+        waiter.wait_until(states) do |nvm|
           unless nvm.count_xpath('TEMPLATE/DISK') > disks
             logger.error "Attaching IMAGE to VM[#{vm['ID']}] failed: #{vm['USER_TEMPLATE/ERROR']}"
             raise Errors::Backend::RemoteError, 'Could not attach storage to compute'

@@ -3,36 +3,60 @@ require 'timeout'
 module Backends
   module Opennebula
     module Helpers
-      module Waiter
-        # Polling interval
+      class Waiter
+        # Default polling interval
         WAITER_STEP = 5
+
+        # Default timeout
+        TIMEOUT = 60
 
         # Early exit state
         EARLY_EXIT_ON = 'FAILURE'.freeze
 
-        # Waits until the given `virtual_machine` changes state to `state` and
-        # triggers validation procedure described in a block.
+        attr_accessor :waitee, :refresher, :waiter_step, :timeout, :logger
+
+        def initialize(args = {})
+          @waitee = args.fetch(:waitee)
+          @refresher = args.fetch(:refresher)
+          @waiter_step = args.fetch(:waiter_step, WAITER_STEP)
+          @timeout = args.fetch(:timeout, TIMEOUT)
+          @logger = args.fetch(:logger, Rails.logger)
+        end
+
+        # Waits until `waitee` changes state to a state matching at least one of the hashes
+        # provided as `states`. Each state should be declared as `reader: expected_value`.
         #
-        # @param virtual_machine [OpenNebula::VirtualMachine] VM to wait for
-        # @param state [String] target state (LCM state by default)
-        # @param timeout [Fixnum] wait for given number of seconds
-        # @param type [Symbol] type of the state
-        def self.wait_until(virtual_machine, state, timeout = 60, type = :lcm_state_str)
+        # @param states [Array] target states
+        def wait_until(states)
           Timeout.timeout(timeout, Errors::Backend::EntityTimeoutError) do
             loop do
-              sleep WAITER_STEP
-              client(Errors::Backend::EntityRetrievalError) { virtual_machine.info }
-              early_fail! virtual_machine
-              break if virtual_machine.send(type) == state
+              sleep waiter_step
+              refresher.call waitee
+              early_fail!
+              break if wanted?(states)
             end
           end
-          yield virtual_machine if block_given?
+
+          yield waitee if block_given?
+        end
+
+        private
+
+        # :nodoc:
+        def wanted?(states)
+          states.each do |state|
+            fits = state.reduce(true) { |memo, (k, v)| memo && waitee.send(k) == v }
+            return true if fits
+          end
+
+          false
         end
 
         # :nodoc:
-        def self.early_fail!(virtual_machine)
-          return unless virtual_machine.lcm_state_str.include?(EARLY_EXIT_ON)
-          raise Errors::Backend::RemoteError, "VM #{virtual_machine['ID']} is stuck in state #{EARLY_EXIT_ON}"
+        def early_fail!
+          return unless waitee.respond_to?(:lcm_state_str)
+          return unless waitee.lcm_state_str.include?(EARLY_EXIT_ON)
+          raise Errors::Backend::RemoteError, "Resource #{waitee['ID']} is stuck in state #{EARLY_EXIT_ON}"
         end
       end
     end
