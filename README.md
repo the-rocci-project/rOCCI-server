@@ -1,3 +1,7 @@
+<p align="center">
+  <img alt="rOCCI" src="https://i.imgur.com/jEEjEfW.png" width="300"/>
+</p> 
+
 # rOCCI-server - A Ruby-based OCCI server
 [![Travis](https://img.shields.io/travis/the-rocci-project/rOCCI-server.svg?style=flat-square)](http://travis-ci.org/the-rocci-project/rOCCI-server)
 [![Gemnasium](https://img.shields.io/gemnasium/the-rocci-project/rOCCI-server.svg?style=flat-square)](https://gemnasium.com/the-rocci-project/rOCCI-server)
