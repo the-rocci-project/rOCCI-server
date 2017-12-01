@@ -1,0 +1,55 @@
+#!/bin/bash
+
+function configure_rocci {
+  # SECRET_KEY_BASE
+  if [ -z ${SECRET_KEY_BASE+x} ] && [ -z ${SECRET_KEY_BASE_FILE+x} ]; then
+    export SECRET_KEY_BASE=$(head -c 69 /dev/urandom | base64 -w 0)
+  fi
+
+  if [ ${SECRET_KEY_BASE_FILE+x} ]; then
+    if [ ${SECRET_KEY_BASE+x} ]; then
+      error_exit "Variables 'SECRET_KEY_BASE' and 'SECRET_KEY_BASE_FILE' cannot be set togather" 2
+    fi
+
+    export SECRET_KEY_BASE=$(cat ${SECRET_KEY_BASE_FILE})
+  fi
+
+  # ROCCI_SERVER_ENCRYPTION_TOKEN_CIPHER
+  if [ -z ${ROCCI_SERVER_ENCRYPTION_TOKEN_CIPHER+x} ] && [ -z ${ROCCI_SERVER_ENCRYPTION_TOKEN_CIPHER_FILE+x} ]; then
+    missing_var_exit "ROCCI_SERVER_ENCRYPTION_TOKEN_CIPHER_FILE"
+  fi
+
+  if [ ${ROCCI_SERVER_ENCRYPTION_TOKEN_CIPHER_FILE+x} ]; then
+    if [ ${ROCCI_SERVER_ENCRYPTION_TOKEN_CIPHER+x} ]; then
+      error_exit "Variables 'ROCCI_SERVER_ENCRYPTION_TOKEN_CIPHER' and 'ROCCI_SERVER_ENCRYPTION_TOKEN_CIPHER_FILE' cannot be set togather" 2
+    fi
+
+    export ROCCI_SERVER_ENCRYPTION_TOKEN_CIPHER=$(cat ${ROCCI_SERVER_ENCRYPTION_TOKEN_CIPHER_FILE})
+  fi
+
+  # ROCCI_SERVER_ENCRYPTION_TOKEN_KEY
+  if [ -z ${ROCCI_SERVER_ENCRYPTION_TOKEN_KEY+x} ] && [ -z ${ROCCI_SERVER_ENCRYPTION_TOKEN_KEY_FILE+x} ]; then
+    missing_var_exit "ROCCI_SERVER_ENCRYPTION_TOKEN_KEY_FILE"
+  fi
+
+  if [ ${ROCCI_SERVER_ENCRYPTION_TOKEN_KEY_FILE+x} ]; then
+    if [ ${ROCCI_SERVER_ENCRYPTION_TOKEN_KEY+x} ]; then
+      error_exit "Variables 'ROCCI_SERVER_ENCRYPTION_TOKEN_KEY' and 'ROCCI_SERVER_ENCRYPTION_TOKEN_KEY_FILE' cannot be set togather" 2
+    fi
+
+    export ROCCI_SERVER_ENCRYPTION_TOKEN_KEY=$(cat ${ROCCI_SERVER_ENCRYPTION_TOKEN_KEY_FILE})
+  fi
+
+  # ROCCI_SERVER_ENCRYPTION_TOKEN_IV
+  if [ -z ${ROCCI_SERVER_ENCRYPTION_TOKEN_IV+x} ] && [ -z ${ROCCI_SERVER_ENCRYPTION_TOKEN_IV_FILE+x} ]; then
+    missing_var_exit "ROCCI_SERVER_ENCRYPTION_TOKEN_IV_FILE"
+  fi
+
+  if [ ${ROCCI_SERVER_ENCRYPTION_TOKEN_IV_FILE+x} ]; then
+    if [ ${ROCCI_SERVER_ENCRYPTION_TOKEN_IV+x} ]; then
+      error_exit "Variables 'ROCCI_SERVER_ENCRYPTION_TOKEN_IV' and 'ROCCI_SERVER_ENCRYPTION_TOKEN_IV_FILE' cannot be set togather" 2
+    fi
+
+    export ROCCI_SERVER_ENCRYPTION_TOKEN_IV=$(cat ${ROCCI_SERVER_ENCRYPTION_TOKEN_IV_FILE})
+  fi
+}

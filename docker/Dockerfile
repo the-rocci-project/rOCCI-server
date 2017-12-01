@@ -25,6 +25,8 @@ RUN useradd --system --shell /bin/false --home ${appDir} ${username} && \
     ln -s ${appDir}/log ${logDir} && \
     chown -R ${username}:${username} ${appDir} ${appDir}/log ${logDir}
 
+COPY bin/* /rocci/bin/
+
 USER ${username}
 
 VOLUME ["${logDir}"]
@@ -35,4 +37,4 @@ RUN bundle install --path ./vendor --deployment --without development test
 
 EXPOSE 3000
 
-ENTRYPOINT ["bundle", "exec", "--keep-file-descriptors", "puma"]
+ENTRYPOINT ["/rocci/bin/rocci-wrapper.sh"]
