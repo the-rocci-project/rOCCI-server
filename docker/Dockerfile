@@ -3,9 +3,11 @@ FROM ruby:2.4-stretch
 ARG branch=master
 ARG version
 
-ENV name="rOCCI-server"
+ENV name="rOCCI-server" \
+    project="the-rocci-project" \
+    installDir="/opt"
 ENV username="rocci" \
-    appDir="/opt/${name}" \
+    appDir="${installDir}/${name}-${version}" \
     logDir="/var/log/${name}" \
     TERM="xterm"
 
@@ -17,7 +19,7 @@ LABEL application=${name} \
 
 SHELL ["/bin/bash", "-c"]
 
-RUN git clone https://github.com/the-rocci-project/rOCCI-server.git ${appDir}
+RUN curl -SsL https://github.com/${project}/${name}/archive/v${version}.tar.gz | tar -xzC ${installDir}
 
 RUN useradd --system --shell /bin/false --home ${appDir} ${username} && \
     usermod -L ${username} && \
