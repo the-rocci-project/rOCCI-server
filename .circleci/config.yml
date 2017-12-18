@@ -6,7 +6,7 @@ jobs:
         - /.*/
     docker:
       - image: docker:stable
-    working_directory: /root/rOCCI-server
+    working_directory: /root/working_directory
     steps:
       - run: apk add --no-cache git openssh
       - checkout
@@ -22,12 +22,12 @@ jobs:
 
           docker login -u $DOCKER_USER -p $DOCKER_PASS
 
-          docker build --build-arg branch=$BRANCH --build-arg version="$VERSION" -t therocciproject/rocci-server:$TAG ./docker
-          docker push therocciproject/rocci-server:$TAG
+          docker build --build-arg branch=$BRANCH --build-arg version="$VERSION" -t $DOCKERHUB_ORGANIZATION/$CIRCLE_PROJECT_REPONAME:$TAG ./$DOCKERFILE_DIR
+          docker push $DOCKERHUB_ORGANIZATION/$CIRCLE_PROJECT_REPONAME:$TAG
 
           if [ "$LATEST" == "$CIRCLE_TAG" ]; then
-            docker tag therocciproject/rocci-server:$TAG therocciproject/rocci-server:latest
-            docker push therocciproject/rocci-server:latest
+            docker tag $DOCKERHUB_ORGANIZATION/$CIRCLE_PROJECT_REPONAME:$TAG $DOCKERHUB_ORGANIZATION/$CIRCLE_PROJECT_REPONAME:latest
+            docker push $DOCKERHUB_ORGANIZATION/$CIRCLE_PROJECT_REPONAME:latest
           fi
 deployment:
   fake_deploy_for_cci2:
